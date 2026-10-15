@@ -3,14 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Francy — Portfolio</title>
+<title>Francy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#17132b; --bg2:#201a3d; --ink:#f4f1ff; --mute:#a9a2d1; --line:#3a3263;
   --accent:#ffb38a; --accent-ink:#1b1636; --glow:#6c4cff;
+  --card-bg:rgba(32, 26, 61, 0.7);
   --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
   --body:"DM Sans","Segoe UI",system-ui,sans-serif;
   color-scheme:dark;
@@ -18,16 +19,22 @@
 @media (prefers-color-scheme:light){
   :root:not([data-theme="dark"]){
     --bg:#f5f3ff; --bg2:#ebe7ff; --ink:#1b1636; --mute:#5f5887; --line:#cfc8f5;
-    --accent:#d2491f; --accent-ink:#ffffff; --glow:#a99cff; color-scheme:light;
+    --accent:#d2491f; --accent-ink:#ffffff; --glow:#a99cff;
+    --card-bg:rgba(235, 231, 255, 0.75);
+    color-scheme:light;
   }
 }
 :root[data-theme="light"]{
   --bg:#f5f3ff; --bg2:#ebe7ff; --ink:#1b1636; --mute:#5f5887; --line:#cfc8f5;
-  --accent:#d2491f; --accent-ink:#ffffff; --glow:#a99cff; color-scheme:light;
+  --accent:#d2491f; --accent-ink:#ffffff; --glow:#a99cff;
+  --card-bg:rgba(235, 231, 255, 0.75);
+  color-scheme:light;
 }
 :root[data-theme="dark"]{
   --bg:#17132b; --bg2:#201a3d; --ink:#f4f1ff; --mute:#a9a2d1; --line:#3a3263;
-  --accent:#ffb38a; --accent-ink:#1b1636; --glow:#6c4cff; color-scheme:dark;
+  --accent:#ffb38a; --accent-ink:#1b1636; --glow:#6c4cff;
+  --card-bg:rgba(32, 26, 61, 0.7);
+  color-scheme:dark;
 }
 
 *,*::before,*::after{box-sizing:border-box}
@@ -37,6 +44,9 @@ a{color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
 ::selection{background:var(--accent);color:var(--accent-ink)}
 .wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1.25rem,4vw,2rem)}
+
+/* Canvas per coriandoli e particelle */
+#fx-canvas{position:fixed;inset:0;pointer-events:none;z-index:9990;width:100%;height:100%}
 
 /* ---------- NAV ---------- */
 nav{
@@ -51,20 +61,21 @@ nav.off{pointer-events:none}
 nav.off:focus-within{opacity:1;pointer-events:auto}
 nav.scrolled{border-bottom-color:var(--line)}
 nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
-.logo{font:800 1.25rem var(--display);text-decoration:none;letter-spacing:-.02em}
-nav ul{display:flex;gap:1.5rem;list-style:none;margin:0;padding:0;align-items:center}
+.logo{font:800 1.25rem var(--display);text-decoration:none;letter-spacing:-.02em;display:inline-flex;align-items:center;gap:.4rem;cursor:pointer}
+.logo:hover .logo-badge{transform:scale(1.2) rotate(12deg)}
+.logo-badge{display:inline-block;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+nav ul{display:flex;gap:1.2rem;list-style:none;margin:0;padding:0;align-items:center}
 nav a.link{text-decoration:none;color:var(--mute);font-weight:500;font-size:.95rem;transition:color .2s}
 nav a.link:hover{color:var(--ink)}
-#theme{
+.nav-icon-btn{
   background:none;border:1px solid var(--line);color:var(--ink);width:40px;height:40px;
-  border-radius:50%;cursor:pointer;font-size:1rem;display:grid;place-items:center;
-  transition:border-color .2s,transform .25s;
+  border-radius:50%;cursor:pointer;font-size:1.05rem;display:grid;place-items:center;
+  transition:border-color .2s,transform .25s,background .2s;
 }
-#theme:hover{border-color:var(--accent);transform:rotate(-20deg)}
-@media(max-width:560px){nav ul li.hide{display:none}}
+.nav-icon-btn:hover{border-color:var(--accent);transform:scale(1.08)}
+@media(max-width:640px){nav ul li.hide{display:none}}
 
 /* ---------- HERO / INTRO ---------- */
-/* Senza JS (o con movimento ridotto) è l'hero statico di sempre. */
 .intro{position:relative}
 .stage{
   position:relative;overflow:hidden;
@@ -78,27 +89,52 @@ nav a.link:hover{color:var(--ink)}
 .veil{display:none}
 .cue{display:none}
 
-.hello{color:var(--mute);margin:0 0 1rem;opacity:var(--c1,1);transform:translateY(calc((1 - var(--c1,1)) * 24px))}
+.hello{
+  color:var(--mute);margin:0 0 1rem;opacity:var(--c1,1);
+  transform:translateY(calc((1 - var(--c1,1)) * 24px));
+  display:inline-flex;align-items:center;gap:.5rem;
+}
+.tag-exotic{
+  background:color-mix(in srgb,var(--accent) 22%,transparent);
+  color:var(--accent);border:1px solid var(--accent);
+  font-size:.78rem;font-weight:700;padding:.15rem .6rem;border-radius:999px;
+  text-transform:uppercase;letter-spacing:.05em;cursor:pointer;
+  animation:wiggle 3s ease-in-out infinite;
+}
+@keyframes wiggle{0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-4deg)} 75%{transform:rotate(4deg)}}
+
 h1{
   position:relative;width:fit-content;white-space:nowrap;
   font:800 clamp(4.5rem,18vw,13rem)/.86 var(--display);letter-spacing:-.045em;margin:0;
   color:color-mix(in srgb,var(--ink) var(--ia,100%),transparent);
   transform-origin:50% 50%;
+  cursor:pointer;
 }
 h1::after{display:none}
 .lead{
   max-width:34rem;font-size:clamp(1.15rem,2.4vw,1.5rem);line-height:1.45;margin:2rem 0 2.2rem;
   opacity:var(--c2,1);transform:translateY(calc((1 - var(--c2,1)) * 24px));
 }
-.cta{display:flex;gap:.9rem;flex-wrap:wrap;opacity:var(--c3,1);transform:translateY(calc((1 - var(--c3,1)) * 24px))}
+.cta{
+  display:flex;gap:.9rem;flex-wrap:wrap;align-items:center;
+  opacity:var(--c3,1);transform:translateY(calc((1 - var(--c3,1)) * 24px));
+  position:relative;
+}
 .btn{
   display:inline-block;padding:.85rem 1.5rem;border-radius:999px;text-decoration:none;font-weight:500;
   transition:transform .2s,background .2s,border-color .2s,color .2s,box-shadow .2s;
+  cursor:pointer;user-select:none;
 }
-.btn.main{background:var(--accent);color:var(--accent-ink)}
+.btn.main{background:var(--accent);color:var(--accent-ink);border:1px solid transparent}
 .btn.main:hover{transform:translateY(-2px);box-shadow:0 10px 30px -10px var(--accent)}
-.btn.ghost{border:1px solid var(--line)}
+.btn.ghost{border:1px solid var(--line);background:transparent;color:var(--ink)}
 .btn.ghost:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+
+/* Bottone fuggitivo birichino */
+.btn-runaway{
+  position:relative;transition:transform .18s cubic-bezier(.2,.8,.2,1),border-color .2s;
+  white-space:nowrap;
+}
 
 /* Modalità animata */
 .intro.anim{height:calc(max(100vh,620px) + 90vh);height:calc(max(100svh,620px) + 90vh)}
@@ -131,18 +167,118 @@ h1::after{display:none}
 
 /* ---------- SEZIONI ---------- */
 section{padding:clamp(3.5rem,8vw,6rem) 0;border-top:1px solid var(--line)}
-h2{font:800 clamp(2rem,5vw,3.25rem)/1.05 var(--display);letter-spacing:-.03em;margin:0 0 2.5rem}
+h2{font:800 clamp(2rem,5vw,3.25rem)/1.05 var(--display);letter-spacing:-.03em;margin:0 0 2rem}
+.sec-intro{color:var(--mute);margin:-1rem 0 2rem;max-width:38rem}
 
-.about{display:grid;grid-template-columns:1.3fr 1fr;gap:3rem}
-.about p{margin:0 0 1.2rem;max-width:36rem}
-.skills{display:flex;flex-wrap:wrap;gap:.6rem;align-content:flex-start;padding:0;margin:0;list-style:none}
-.skills li{
-  border:1px solid var(--line);padding:.45rem 1rem;border-radius:999px;font-size:.95rem;
-  color:var(--mute);background:var(--bg2);
+.about{display:grid;grid-template-columns:1.2fr 1fr;gap:3rem}
+.about p{margin:0 0 1.2rem;max-width:36rem;font-size:1.15rem}
+
+/* Micro-pulsante per cambiare identità */
+.btn-micro{
+  background:var(--bg2);color:var(--ink);border:1px dashed var(--line);
+  padding:.45rem .9rem;border-radius:999px;font-size:.88rem;cursor:pointer;
+  display:inline-flex;align-items:center;gap:.4rem;font-family:var(--body);
+  transition:border-color .2s,transform .2s,background .2s;
 }
-.skills li:hover{border-color:var(--accent);color:var(--ink)}
-@media(max-width:760px){.about{grid-template-columns:1fr;gap:1.5rem}}
+.btn-micro:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px);border-style:solid}
 
+/* Box Gamification XP */
+.xp-box{
+  background:var(--card-bg);backdrop-filter:blur(10px);
+  border:1px solid var(--line);border-radius:18px;padding:1.4rem;
+  margin-bottom:1.5rem;box-shadow:0 8px 30px rgba(0,0,0,0.15);
+}
+.xp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
+.xp-title{font-weight:700;font-size:.92rem;color:var(--ink)}
+.xp-score{font-family:var(--display);font-size:1.1rem;font-weight:800;color:var(--accent)}
+.xp-bar{height:10px;background:var(--bg);border-radius:999px;overflow:hidden;border:1px solid var(--line);position:relative}
+.xp-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--glow),var(--accent));border-radius:999px;transition:width .4s cubic-bezier(.34,1.56,.64,1)}
+.xp-sub{font-size:.82rem;color:var(--mute);margin:.6rem 0 0;display:flex;justify-content:space-between}
+
+.skills{display:flex;flex-wrap:wrap;gap:.65rem;align-content:flex-start;padding:0;margin:0;list-style:none}
+.skills li{
+  border:1px solid var(--line);padding:.55rem 1.15rem;border-radius:999px;font-size:.95rem;
+  color:var(--mute);background:var(--bg2);cursor:pointer;user-select:none;
+  transition:border-color .2s,color .2s,transform .2s cubic-bezier(.34,1.56,.64,1),background .2s;
+  position:relative;
+}
+.skills li:hover{border-color:var(--accent);color:var(--ink);transform:scale(1.06) rotate(-1deg)}
+.skills li:active{transform:scale(0.92)}
+.skills li.popped{animation:popBounce .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popBounce{0%{transform:scale(0.85)} 50%{transform:scale(1.22) rotate(4deg)} 100%{transform:scale(1)}}
+
+/* Badge XP fluttuante */
+.floating-xp{
+  position:fixed;pointer-events:none;z-index:9999;
+  font-family:var(--display);font-weight:800;font-size:1.1rem;
+  color:var(--accent);text-shadow:0 2px 10px rgba(0,0,0,0.5);
+  animation:floatAway .9s ease-out forwards;
+}
+@keyframes floatAway{0%{opacity:1;transform:translate(-50%,0) scale(0.7)} 40%{transform:translate(-50%,-28px) scale(1.2)} 100%{opacity:0;transform:translate(-50%,-55px) scale(1)}}
+
+@media(max-width:760px){.about{grid-template-columns:1fr;gap:2rem}}
+
+/* ---------- SALA GIOCHI ESOTICA ---------- */
+.games-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;
+}
+.game-card{
+  background:var(--card-bg);backdrop-filter:blur(10px);
+  border:1px solid var(--line);border-radius:20px;padding:1.8rem;
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;
+}
+.game-card:hover{
+  border-color:var(--accent);transform:translateY(-3px);
+  box-shadow:0 12px 35px -10px color-mix(in srgb,var(--glow) 35%,transparent);
+}
+.game-badge{
+  font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  padding:.25rem .7rem;border-radius:999px;background:var(--bg);border:1px solid var(--line);
+  color:var(--mute);width:fit-content;margin-bottom:1rem;
+}
+.game-card h3{font:800 1.5rem/1.2 var(--display);margin:0 0 .6rem}
+.game-card p{color:var(--mute);margin:0 0 1.4rem;font-size:.95rem}
+
+/* Gioco 1: Pulsante Proibito */
+.forbidden-area{text-align:center;padding:1rem 0}
+.btn-forbidden{
+  background:#ff3366;color:#fff;border:none;padding:1rem 2rem;
+  font:800 1.15rem var(--display);border-radius:999px;cursor:pointer;
+  box-shadow:0 8px 25px rgba(255,51,102,0.45);
+  transition:transform .15s,box-shadow .15s,background .3s;user-select:none;
+}
+.btn-forbidden:hover{transform:scale(1.06);box-shadow:0 10px 30px rgba(255,51,102,0.6)}
+.btn-forbidden:active{transform:scale(0.94)}
+.forbidden-status{
+  font-family:monospace;font-size:.85rem;color:var(--accent);margin-top:1rem;
+  min-height:1.4em;
+}
+
+/* Gioco 2: Oracolo delle Scuse */
+.oracle-box{
+  background:var(--bg);border:1px dashed var(--line);border-radius:14px;
+  padding:1.1rem;margin-bottom:1.2rem;min-height:90px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-style:italic;color:var(--ink);
+}
+.oracle-btns{display:flex;gap:.6rem;flex-wrap:wrap}
+
+/* Gioco 3: Mini-Clicker Acchiappa l'Esotico */
+.clicker-box{
+  background:var(--bg);border:1px solid var(--line);border-radius:14px;
+  height:140px;position:relative;overflow:hidden;margin-bottom:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.clicker-target{
+  position:absolute;font-size:2.2rem;cursor:pointer;user-select:none;
+  transition:transform .1s;line-height:1;
+}
+.clicker-target:hover{transform:scale(1.25)}
+.clicker-target:active{transform:scale(0.85)}
+.clicker-stats{display:flex;justify-content:space-between;font-size:.9rem;font-weight:700;margin-bottom:.8rem}
+
+/* ---------- PROGETTI ---------- */
 .proj{
   display:grid;grid-template-columns:1fr auto;gap:.5rem 2rem;align-items:baseline;
   padding:1.8rem 3rem 1.8rem 0;border-bottom:1px solid var(--line);text-decoration:none;position:relative;
@@ -150,7 +286,11 @@ h2{font:800 clamp(2rem,5vw,3.25rem)/1.05 var(--display);letter-spacing:-.03em;ma
 .proj:first-of-type{border-top:1px solid var(--line)}
 .proj h3{font:800 clamp(1.6rem,4vw,2.5rem)/1.1 var(--display);letter-spacing:-.025em;margin:0;transition:color .25s}
 .proj p{grid-column:1;margin:0;color:var(--mute);max-width:40rem}
-.proj p:empty,.proj .tag:empty{display:none}
+.proj-tag{
+  font-size:.8rem;font-weight:700;border:1px solid var(--line);
+  padding:.2rem .7rem;border-radius:999px;color:var(--accent);
+}
+.proj-interactive{grid-column:1;margin-top:.8rem;display:flex;gap:.8rem;align-items:center}
 .proj::after{
   content:"→";position:absolute;right:0;top:50%;transform:translateY(-50%);
   font-size:1.8rem;color:var(--mute);transition:transform .3s,color .3s;
@@ -159,20 +299,83 @@ h2{font:800 clamp(2rem,5vw,3.25rem)/1.05 var(--display);letter-spacing:-.03em;ma
 .proj:hover h3,.proj:hover::after{color:var(--accent)}
 .proj:hover::after{transform:translate(6px,-50%)}
 
+/* ---------- CONTATTI ---------- */
 .contact{background:var(--bg2)}
 .contact h2{margin-bottom:1.2rem}
 .mail{
   font:800 clamp(1.4rem,5vw,3rem) var(--display);letter-spacing:-.03em;text-decoration:none;
   border-bottom:3px solid var(--accent);word-break:break-all;transition:color .2s;
+  display:inline-block;cursor:pointer;
 }
 .mail:hover{color:var(--accent)}
 .social{display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap}
 .social a{
   color:var(--ink);text-decoration:none;padding:.6rem 1.1rem;border:1px solid var(--line);
-  border-radius:999px;font-size:.95rem;transition:border-color .2s,color .2s;
+  border-radius:999px;font-size:.95rem;transition:border-color .2s,color .2s,transform .2s;
+  display:inline-flex;align-items:center;gap:.4rem;
 }
-.social a:hover{border-color:var(--accent);color:var(--accent)}
+.social a:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
 footer{padding:2rem 0;color:var(--mute);font-size:.9rem}
+
+/* ---------- TOAST NOTIFICHE ---------- */
+#toast-container{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  z-index:10001;display:flex;flex-direction:column;gap:8px;pointer-events:none;
+}
+.toast{
+  background:var(--card-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  color:var(--ink);border:1px solid var(--accent);padding:.8rem 1.4rem;
+  border-radius:999px;box-shadow:0 10px 35px rgba(0,0,0,0.3);
+  font-size:.92rem;font-weight:500;display:flex;align-items:center;gap:.6rem;
+  animation:toastIn .3s cubic-bezier(.34,1.56,.64,1) forwards;
+  pointer-events:auto;white-space:nowrap;
+}
+@keyframes toastIn{from{opacity:0;transform:translateY(20px) scale(0.9)} to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes toastOut{from{opacity:1;transform:scale(1)} to{opacity:0;transform:translateY(15px) scale(0.9)}}
+
+/* ---------- BANNER TARALLO (COOKIE IRONICO) ---------- */
+.tarallo-banner{
+  position:fixed;bottom:20px;right:20px;z-index:999;
+  background:var(--card-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--line);border-radius:18px;padding:1.1rem 1.3rem;
+  max-width:320px;box-shadow:0 12px 35px rgba(0,0,0,0.35);
+  font-size:.88rem;display:flex;flex-direction:column;gap:.7rem;
+  opacity:0;transform:translateY(30px) scale(0.95);pointer-events:none;
+  transition:opacity .45s cubic-bezier(.34,1.56,.64,1), transform .45s cubic-bezier(.34,1.56,.64,1);
+}
+.tarallo-banner.visible{
+  opacity:1;transform:translateY(0) scale(1);pointer-events:auto;
+}
+.tarallo-banner strong{display:flex;align-items:center;gap:.4rem;color:var(--ink);font-size:.95rem}
+.tarallo-banner p{margin:0;color:var(--mute);line-height:1.4}
+.tarallo-actions{display:flex;gap:.5rem}
+.tarallo-btn{
+  border:none;border-radius:999px;padding:.4rem .9rem;font-size:.82rem;font-weight:700;
+  cursor:pointer;font-family:var(--body);transition:transform .15s;
+}
+.tarallo-btn.accept{background:var(--accent);color:var(--accent-ink)}
+.tarallo-btn.accept:hover{transform:scale(1.05)}
+.tarallo-btn.reject{background:transparent;border:1px solid var(--line);color:var(--mute)}
+.tarallo-btn.reject:hover{color:var(--ink);border-color:var(--ink)}
+
+/* Effetto scuotimento schermo (Screen Shake) */
+.shake{animation:screenShake .4s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes screenShake{
+  10%,90%{transform:translate3d(-2px,0,0)}
+  20%,80%{transform:translate3d(3px,0,0)}
+  30%,50%,70%{transform:translate3d(-5px,0,0)}
+  40%,60%{transform:translate3d(5px,0,0)}
+}
+
+/* Modalità Party Esotico */
+body.party-mode{
+  animation:partyFlash 4s linear infinite alternate;
+}
+@keyframes partyFlash{
+  0%{filter:hue-rotate(0deg)}
+  50%{filter:hue-rotate(180deg)}
+  100%{filter:hue-rotate(360deg)}
+}
 
 /* ---------- REVEAL ALLO SCROLL ---------- */
 .js .reveal{opacity:0;transform:translateY(32px);transition:opacity .9s ease var(--d,0s),transform .9s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
@@ -183,17 +386,36 @@ footer{padding:2rem 0;color:var(--mute);font-size:.9rem}
   *,*::before,*::after{animation:none!important;transition:none!important}
   html{scroll-behavior:auto}
   .js .reveal{opacity:1;transform:none}
+  .btn-runaway{transform:none!important}
 }
 </style>
 </head>
 <body>
+
+<canvas id="fx-canvas"></canvas>
+<div id="toast-container"></div>
+
+<!-- Cookie Banner Ironico -->
+<div class="tarallo-banner" id="taralloBanner">
+  <strong>🥯 Taralli & Privacy</strong>
+  <p>Questo sito non usa cookie, ma se vuoi ti do un tarallo.</p>
+  <div class="tarallo-actions">
+    <button class="tarallo-btn accept" id="btnAcceptTarallo">Mangia il tarallo 😋</button>
+    <button class="tarallo-btn reject" id="btnRejectTarallo">Sono a dieta 🍏</button>
+  </div>
+</div>
+
 <nav id="nav"><div class="wrap">
-  <a class="logo" href="#top">Francy</a>
+  <a class="logo" href="#top" id="logoBtn">
+    <span class="logo-badge">🦩</span> Francy
+  </a>
   <ul>
     <li class="hide"><a class="link" href="#chi-sono">Chi non sono</a></li>
+    <li class="hide"><a class="link" href="#giochi">Sala Giochi</a></li>
     <li class="hide"><a class="link" href="#progetti">Non progetti</a></li>
     <li><a class="link" href="#contatti">Forse</a></li>
-    <li><button id="theme" aria-label="Cambia tema">◐</button></li>
+    <li><button class="nav-icon-btn" id="soundToggle" aria-label="Attiva o disattiva effetti sonori" title="Attiva/disattiva suoni">🔊</button></li>
+    <li><button class="nav-icon-btn" id="theme" aria-label="Cambia tema" title="Cambia tema">◐</button></li>
   </ul>
 </div></nav>
 
@@ -201,12 +423,12 @@ footer{padding:2rem 0;color:var(--mute);font-size:.9rem}
   <div class="stage" id="stage">
     <div class="veil" aria-hidden="true"></div>
     <div class="wrap">
-      <p class="hello">Ciao, sono ESOTICO.</p>
-      <h1 id="name" data-text="Francy">Francy</h1>
-      <p class="lead"></p>
+      <p class="hello">Ciao, sono <span class="tag-exotic" id="badgeExotic" title="Clicca per una carica esotica!">ESOTICO</span></p>
+      <h1 id="name" data-text="Francy" title="Cliccami!">Francy</h1>
+      <p class="lead">Ma soprattutto disoccupato.</p>
       <div class="cta">
-        <a class="btn main" href="#progetti">Non guardare i progetti!</a>
-        <a class="btn ghost" href="#contatti">Non scrivermi!</a>
+        <a class="btn main" href="#giochi" id="btnPlayMain">🎮 Rovinati l'esistenza giocando</a>
+        <a class="btn ghost btn-runaway" id="btnRunaway" href="#contatti">Non scrivermi!</a>
       </div>
     </div>
     <div class="cue" aria-hidden="true"></div>
@@ -218,40 +440,157 @@ footer{padding:2rem 0;color:var(--mute);font-size:.9rem}
   <h2 class="reveal">Chi non sono</h2>
   <div class="about">
     <div class="reveal">
-      <p>Paolo Bonolis.</p>
+      <p id="whoText">Paolo Bonolis.</p>
+      <button class="btn-micro" id="btnOtherWho">🎲 Chi altro non sono?</button>
+      <p style="margin-top:1.4rem;font-size:0.95rem;color:var(--mute)">
+        Sono così disoccupato che ho avuto il tempo di creare questo FUTILE sito. 
+      </p>
     </div>
-    <ul class="skills">
-      <li class="reveal">Ignorante</li><li class="reveal">Deficiente</li><li class="reveal">Stupidino</li><li class="reveal">Non lo so</li><li class="reveal">Qualcosa</li><li class="reveal">ESOTICISSIMO</li>
-    </ul>
+    <div>
+      <div class="xp-box reveal">
+        <div class="xp-top">
+          <span class="xp-title">🏆 Grado: <strong id="xpRank" style="color:var(--accent)">Disoccupato Principiante</strong></span>
+          <span class="xp-score"><span id="xpCount">0</span> XP</span>
+        </div>
+        <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+        <div class="xp-sub">
+          <span>💡 Clicca su questi orribili tasti per diventare più disoccupato.</span>
+          <span id="xpNext">Prossimo rank a 100 XP</span>
+        </div>
+      </div>
+      <ul class="skills" id="skillsList">
+        <li class="reveal" data-xp="15" title="+15 XP">Ignorante</li>
+        <li class="reveal" data-xp="20" title="+20 XP">Deficiente</li>
+        <li class="reveal" data-xp="25" title="+25 XP">Stupidino</li>
+        <li class="reveal" data-xp="30" title="+30 XP">Non lo so</li>
+        <li class="reveal" data-xp="45" title="+45 XP">Qualcosa</li>
+        <li class="reveal" data-xp="100" title="+100 XP" style="border-color:var(--accent);color:var(--ink)">ESOTICISSIMO 🌟</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- SEZIONE SALA GIOCHI INTERATTIVA -->
+<section id="giochi"><div class="wrap">
+  <h2 class="reveal">🎮 Sala Giochi & Disastri</h2>
+  <p class="sec-intro reveal">Questa sezione è stata scientificamente progettata per farti procrastinare con il massimo rendimento.</p>
+  
+  <div class="games-grid">
+    <!-- GIOCO 1: IL PULSANTE PROIBITO -->
+    <div class="game-card reveal">
+      <div>
+        <div class="game-badge">Esperimento Psicologico</div>
+        <h3>Il Pulsante Proibito 🛑</h3>
+        <p>Non dovresti cliccare il tasto qui sotto, ma tanto so già che lo farai.</p>
+      </div>
+      <div class="forbidden-area">
+        <button class="btn-forbidden" id="btnForbidden">NON PREMERE!</button>
+        <div class="forbidden-status" id="forbiddenStatus">Pressioni Vietate: 0</div>
+      </div>
+    </div>
+
+    <!-- GIOCO 2: L'ORACOLO DELLE SCUSE -->
+    <div class="game-card reveal">
+      <div>
+        <div class="game-badge">Per Ignoranti</div>
+        <h3>Generatore di Scuse 🔮</h3>
+        <p>Se ti serve una scusa credibile NON usare queso strumento, ma se sei proprio stupido...</p>
+      </div>
+      <div>
+        <div class="oracle-box" id="oracleQuote">"Il codice funzionava benissimo, poi Mercurio è entrato in retrogrado."</div>
+        <div class="oracle-btns">
+          <button class="btn-micro" id="btnNewExcuse">🎲 Nuova Scusa</button>
+          <button class="btn-micro" id="btnCopyExcuse">📋 Copia Scusa</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GIOCO 3: ACCHIAPPA L'ESOTICO -->
+    <div class="game-card reveal">
+      <div>
+        <div class="game-badge">Test di Riflessi</div>
+        <h3>Clicca il Nero 🍍</h3>
+        <p>Sfida di 15 secondi: clicca su più neri che puoi prima che finisca il tempo!</p>
+      </div>
+      <div>
+        <div class="clicker-stats">
+          <span>Tempo: <span id="gameTimer" style="color:var(--accent)">15</span>s</span>
+          <span>Punti: <span id="gameScore" style="color:var(--accent)">0</span> | Record: <span id="gameRecord">0</span></span>
+        </div>
+        <div class="clicker-box" id="clickerArea">
+          <div style="color:var(--mute);font-size:.9rem;text-align:center" id="clickerPrompt">
+            Premi il bottone qui sotto per avviare!
+          </div>
+        </div>
+        <button class="btn-micro" id="btnStartClicker" style="width:100%;justify-content:center;padding:.6rem">🚀 Acchiappa i Neri!</button>
+      </div>
+    </div>
   </div>
 </div></section>
 
 <section id="progetti"><div class="wrap">
-  <h2 class="reveal">Progetti</h2>
-  <a class="proj reveal" href="#contatti">
-    <h3>Niente</h3><span class="tag"></span>
-    <p></p>
-  </a>
-  <a class="proj reveal" href="#contatti">
-    <h3>Boh</h3><span class="tag"></span>
-    <p></p>
-  </a>
-  <a class="proj reveal" href="#contatti">
-    <h3>Forse</h3><span class="tag"></span>
-    <p></p>
-  </a>
+  <h2 class="reveal">Non progetti</h2>
+  <p class="sec-intro reveal">Una curata selezione di cose che non ho mai fatto in vita mia.</p>
+  
+  <div class="proj reveal" id="proj1">
+    <div>
+      <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.4rem">
+        <h3>Niente</h3>
+        <span class="proj-tag">0 Bug</span>
+      </div>
+      <p>Il progetto più stabile mai concepito non potendo essere instabile.</p>
+      <div class="proj-interactive">
+        <button class="btn-micro btn-test-proj" data-proj="niente">▶ Simula Esecuzione</button>
+        <span class="proj-feedback" style="font-size:.85rem;color:var(--accent)"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="proj reveal" id="proj2">
+    <div>
+      <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.4rem">
+        <h3>Boh</h3>
+        <span class="proj-tag">Deficienza Artificiale</span>
+      </div>
+      <p>Un'avanzata intelligienza artificiale che risponderà a tutto quello che dici alzando le spalle.</p>
+      <div class="proj-interactive">
+        <button class="btn-micro btn-test-proj" data-proj="boh">▶ Interroga Boh </button>
+        <span class="proj-feedback" style="font-size:.85rem;color:var(--accent)"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="proj reveal" id="proj3">
+    <div>
+      <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.4rem">
+        <h3>Forse</h3>
+        <span class="proj-tag">Calcolo Improbabile</span>
+      </div>
+      <p>Un'applicazione che funziona solamente quando vuole.</p>
+      <div class="proj-interactive">
+        <button class="btn-micro btn-test-proj" data-proj="forse">▶ Tenta la Sfortuna</button>
+        <span class="proj-feedback" style="font-size:.85rem;color:var(--accent)"></span>
+      </div>
+    </div>
+  </div>
 </div></section>
 
 <section class="contact" id="contatti"><div class="wrap">
   <h2 class="reveal">Non lavoriamo insieme!</h2>
-  <a class="mail reveal" href="mailto:ciao@esempio.it">stupidino@stupidini.com</a>
+  <p class="sec-intro reveal">Se proprio devi mandare un messaggio, sappi che la risposta non la vedrai mai.</p>
+  <a class="mail reveal" id="mailLink" href="mailto:francymaesotico@gmail.com" title="Clicca per copiare l'email!">francymaesotico@gmail.com</a>
   <div class="social reveal">
-    <a href="#">GitHub</a><a href="#">Youtube</a><a href="#">Twitch</a>
+    <a href="#contatti" class="social-link" data-msg="📺 Canale con 0 video ma credo in me stesso">YouTube</a>
+    <a href="#contatti" class="social-link" data-msg="💻 Faccio esperimenti tipo questo (raramente)">GitHub</a>
+    <a href="#contatti" class="social-link" data-msg="🎮 Live di un disoccupato per eccellenza">Twitch</a>
   </div>
 </div></section>
 </main>
 
-<footer><div class="wrap">© <span id="y"></span> Francy</div></footer>
+<footer><div class="wrap" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+  <div>© <span id="y"></span> Francy — 100% Esotico, 0% Serio</div>
+  <div style="font-size:.82rem;color:var(--mute)">Tip: Prova a digitare il codice segreto con le freccette della tastiera (↑ ↑ ↓ ↓ ← → ← → B A) 🕹️</div>
+</div></footer>
 
 <script>
 (function(){
@@ -267,20 +606,663 @@ footer{padding:2rem 0;color:var(--mute);font-size:.9rem}
 
   function clamp(v){ return v < 0 ? 0 : v > 1 ? 1 : v; }
 
-  /* ---- tema ---- */
+  /* ==========================================================================
+     SINTETIZZATORE AUDIO WEB (Zero dipendenze esterne!)
+     ========================================================================== */
+  var audioCtx = null;
+  var soundEnabled = true;
+
+  function initAudio(){
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx && audioCtx.state === 'suspended'){
+      audioCtx.resume();
+    }
+  }
+
+  function playTone(freq, type, duration, vol){
+    if(!soundEnabled) return;
+    try{
+      initAudio();
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      var v = vol || 0.12;
+      gain.gain.setValueAtTime(v, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }catch(e){}
+  }
+
+  function soundPop(){
+    playTone(520, 'sine', 0.1, 0.14);
+  }
+
+  function soundBoing(){
+    if(!soundEnabled) return;
+    try{
+      initAudio();
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.28);
+      gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.28);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.28);
+    }catch(e){}
+  }
+
+  function soundNote(index){
+    var notes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
+    var f = notes[index % notes.length];
+    playTone(f, 'sine', 0.24, 0.15);
+  }
+
+  function soundFanfare(){
+    if(!soundEnabled) return;
+    var fan = [261.63, 329.63, 392.00, 523.25];
+    fan.forEach(function(f, i){
+      setTimeout(function(){ playTone(f, 'triangle', 0.35, 0.18); }, i * 90);
+    });
+  }
+
+  var soundToggleBtn = document.getElementById('soundToggle');
+  soundToggleBtn.addEventListener('click', function(){
+    soundEnabled = !soundEnabled;
+    soundToggleBtn.textContent = soundEnabled ? '🔊' : '🔇';
+    showToast(soundEnabled ? '🔊 Effetti sonori attivati!' : '🔇 Suoni silenziati');
+    if(soundEnabled) soundPop();
+  });
+
+  /* ==========================================================================
+     SISTEMA PARTICELLE & CORIANDOLI (CANVAS 2D ULTRA-LEGGERO)
+     ========================================================================== */
+  var canvas = document.getElementById('fx-canvas');
+  var ctx = canvas.getContext('2d');
+  var particles = [];
+  var isRendering = false;
+
+  function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  function spawnBurst(x, y, count, emojis){
+    var colors = ['#ffb38a', '#6c4cff', '#a98bff', '#ffd166', '#06d6a0', '#ff3366'];
+    var useEmoji = Array.isArray(emojis) && emojis.length > 0;
+    for(var i = 0; i < count; i++){
+      var angle = Math.random() * Math.PI * 2;
+      var speed = Math.random() * 8 + 3;
+      particles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 3,
+        size: useEmoji ? (Math.random() * 12 + 18) : (Math.random() * 6 + 5),
+        color: colors[Math.floor(Math.random() * colors.length)],
+        emoji: useEmoji ? emojis[Math.floor(Math.random() * emojis.length)] : null,
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 12,
+        alpha: 1,
+        life: 1
+      });
+    }
+    if(!isRendering){
+      isRendering = true;
+      requestAnimationFrame(renderParticles);
+    }
+  }
+
+  function renderParticles(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for(var i = particles.length - 1; i >= 0; i--){
+      var p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.28; // gravità
+      p.vx *= 0.98;
+      p.rotation += p.rotSpeed;
+      p.alpha -= 0.016;
+
+      if(p.alpha <= 0 || p.y > canvas.height + 50){
+        particles.splice(i, 1);
+        continue;
+      }
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.alpha);
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.rotation * Math.PI) / 180);
+
+      if(p.emoji){
+        ctx.font = p.size + 'px serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(p.emoji, 0, 0);
+      } else {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    if(particles.length > 0){
+      requestAnimationFrame(renderParticles);
+    } else {
+      isRendering = false;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+
+  /* ==========================================================================
+     TOAST NOTIFICHE
+     ========================================================================== */
+  var toastContainer = document.getElementById('toast-container');
+  function showToast(text, duration){
+    var d = duration || 2600;
+    var t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML = text;
+    toastContainer.appendChild(t);
+    setTimeout(function(){
+      t.style.animation = 'toastOut 0.3s forwards';
+      setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 300);
+    }, d);
+  }
+
+  /* ==========================================================================
+     HERO: BOTTONE FUGGITIVO BIRICHINO "NON SCRIVERMI!"
+     ========================================================================== */
+  var btnRunaway = document.getElementById('btnRunaway');
+  var runawayCount = 0;
+  var runawayPhrases = [
+    'Quasi preso. 😔',
+    'Troppo lento! 🥱',
+    'Ho detto NON scrivermi! 🛑',
+    'Anche tu disoccupato? 😶‍🌫️',
+    'Ok ok, mi arrendo, cliccami. 😭'
+  ];
+
+  function dodge(e){
+    if(runawayCount >= 4) return;
+    runawayCount++;
+    soundBoing();
+    var rect = btnRunaway.getBoundingClientRect();
+    var maxOffset = 110;
+    var dx = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * maxOffset + 50);
+    var dy = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 60 + 20);
+
+    btnRunaway.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+    btnRunaway.textContent = runawayPhrases[runawayCount - 1];
+
+    var bX = rect.left + rect.width / 2;
+    var bY = rect.top + rect.height / 2;
+    spawnBurst(bX, bY, 8, ['💨', '✨', '⚡']);
+
+    if(runawayCount >= 4){
+      setTimeout(function(){
+        btnRunaway.style.transform = 'none';
+        btnRunaway.textContent = 'Ok ok, mi arrendo, cliccami. 😭';
+        showToast('🏆 Achievement sbloccato: "Riflessi da Disoccupato"!');
+        soundFanfare();
+      }, 700);
+    }
+  }
+
+  btnRunaway.addEventListener('mouseenter', dodge);
+  btnRunaway.addEventListener('click', function(e){
+    if(runawayCount < 4){
+      e.preventDefault();
+      dodge(e);
+    } else {
+      showToast('Qui mi puoi (sfortunatamente) scrivere...');
+      soundPop();
+    }
+  });
+
+  /* Cliccando su Francy nell'hero si scatena una festa */
+  h1.addEventListener('click', function(e){
+    soundPop();
+    spawnBurst(e.clientX, e.clientY, 25, ['🦩', '✨', '🍍', '🕶️', '🌴', '🍕']);
+    showToast('✨ 100% Esoticità garantita!');
+  });
+
+  document.getElementById('badgeExotic').addEventListener('click', function(e){
+    soundFanfare();
+    var b = this.getBoundingClientRect();
+    spawnBurst(b.left + b.width / 2, b.top + b.height / 2, 20, ['🔥', '✨', '⚡', '🌟']);
+    showToast('🌟 Sovraccarico Esotico Raggiunto!');
+  });
+
+  document.getElementById('logoBtn').addEventListener('click', function(e){
+    soundPop();
+    var b = this.getBoundingClientRect();
+    spawnBurst(b.left + b.width / 2, b.top + b.height / 2, 12, ['🦩', '💖', '✨']);
+  });
+
+  /* ==========================================================================
+     CHI NON SONO (GENERATORE IDENTITÀ ASSURDE)
+     ========================================================================== */
+  var whoText = document.getElementById('whoText');
+  var btnOtherWho = document.getElementById('btnOtherWho');
+  var whoList = [
+    'Paolo Bonolis.',
+    'Gerry Scotti che conduce una missione su Marte.',
+    'Il tuo commercialista che cerca gli scontrini del 2017.',
+    'Tre procioni in un impermeabile che fingono di programmare in C++.',
+    'L\'inventore della pizza con ananas e maionese (per fortuna).',
+    'Batman, ma solo il martedì tra le 14:00 e le 15:30.',
+    'Un tostapane smart con una profonda crisi d\'identità.',
+    'Alberto Angela durante uno scavo archeologico sul divano.'
+  ];
+  var whoIdx = 0;
+
+  btnOtherWho.addEventListener('click', function(e){
+    soundPop();
+    whoIdx = (whoIdx + 1) % whoList.length;
+    whoText.style.opacity = '0';
+    whoText.style.transform = 'translateY(-8px)';
+    whoText.style.transition = 'opacity .2s, transform .2s';
+    setTimeout(function(){
+      whoText.textContent = whoList[whoIdx];
+      whoText.style.opacity = '1';
+      whoText.style.transform = 'translateY(0)';
+    }, 200);
+    var b = btnOtherWho.getBoundingClientRect();
+    spawnBurst(b.left + b.width / 2, b.top + b.height / 2, 8, ['🎲', '✨']);
+  });
+
+  /* ==========================================================================
+     GAMIFICATION: SKILL CLICKER & XP FARMING
+     ========================================================================== */
+  var currentXp = 0;
+  var xpCountEl = document.getElementById('xpCount');
+  var xpFillEl = document.getElementById('xpFill');
+  var xpRankEl = document.getElementById('xpRank');
+  var xpNextEl = document.getElementById('xpNext');
+
+  var ranks = [
+    { threshold: 0, title: 'Disoccupato Principiante' },
+    { threshold: 75, title: 'Apprendista del Boss ' },
+    { threshold: 180, title: 'Maestro di Disoccupaggine' },
+    { threshold: 320, title: 'Quasi Boss' },
+    { threshold: 500, title: 'UNEMPLOYED FINAL BOSS 👑' }
+  ];
+
+  function addXp(amount, clientX, clientY){
+    currentXp += amount;
+    xpCountEl.textContent = currentXp;
+
+    // Aggiorna grado
+    var currentRank = ranks[0].title;
+    var nextThreshold = ranks[1].threshold;
+    for(var i = 0; i < ranks.length; i++){
+      if(currentXp >= ranks[i].threshold){
+        currentRank = ranks[i].title;
+        nextThreshold = (i + 1 < ranks.length) ? ranks[i + 1].threshold : null;
+      }
+    }
+    
+    if(xpRankEl.textContent !== currentRank){
+      xpRankEl.textContent = currentRank;
+      showToast('🎉 PROMOZIONE! Nuovo rango: ' + currentRank, 3200);
+      soundFanfare();
+      spawnBurst(clientX || window.innerWidth / 2, clientY || window.innerHeight / 2, 25, ['🏆', '✨', '👑']);
+    }
+
+    if(nextThreshold){
+      var prev = 0;
+      for(var j = 0; j < ranks.length; j++){
+        if(ranks[j].title === currentRank) prev = ranks[j].threshold;
+      }
+      var pct = Math.min(100, Math.round(((currentXp - prev) / (nextThreshold - prev)) * 100));
+      xpFillEl.style.width = pct + '%';
+      xpNextEl.textContent = 'Prossimo rango a ' + nextThreshold + ' XP';
+    } else {
+      xpFillEl.style.width = '100%';
+      xpNextEl.textContent = 'Livello Massimo Raggiunto! Sei troppo disoccupato.';
+    }
+
+    // Badge fluttuante "+XP"
+    if(clientX && clientY){
+      var f = document.createElement('div');
+      f.className = 'floating-xp';
+      f.textContent = '+' + amount + ' XP';
+      f.style.left = clientX + 'px';
+      f.style.top = clientY + 'px';
+      document.body.appendChild(f);
+      setTimeout(function(){ if(f.parentNode) f.parentNode.removeChild(f); }, 900);
+    }
+  }
+
+  var skillItems = document.querySelectorAll('#skillsList li');
+  skillItems.forEach(function(item, idx){
+    item.addEventListener('click', function(e){
+      var xpVal = parseInt(item.getAttribute('data-xp') || '20', 10);
+      item.classList.add('popped');
+      setTimeout(function(){ item.classList.remove('popped'); }, 350);
+      soundNote(idx);
+      spawnBurst(e.clientX, e.clientY, 10, ['✨', '⭐', '🎈']);
+      addXp(xpVal, e.clientX, e.clientY);
+    });
+  });
+
+  /* ==========================================================================
+     SALA GIOCHI: 1. IL PULSANTE PROIBITO
+     ========================================================================== */
+  var btnForbidden = document.getElementById('btnForbidden');
+  var forbiddenStatus = document.getElementById('forbiddenStatus');
+  var forbiddenClicks = 0;
+  var forbiddenMessages = [
+    'Pressioni vietate: 1 (Fermati finché sei in tempo)',
+    'Pressioni vietate: 2 (Ti stai assumendo enormi rischi)',
+    'Pressioni vietate: 3 (Mario Roggero si è allarmato)',
+    'Pressioni vietate: 4 (Il Pacciani sta arrivando...)',
+    'Pressioni vietate: 5 (Ora vedrai come uno strafatto)'
+  ];
+
+  btnForbidden.addEventListener('click', function(e){
+    forbiddenClicks++;
+    soundPop();
+    document.body.classList.add('shake');
+    setTimeout(function(){ document.body.classList.remove('shake'); }, 400);
+
+    var rect = btnForbidden.getBoundingClientRect();
+    spawnBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 14, ['💥', '⚠️', '🔥']);
+
+    if(forbiddenClicks < forbiddenMessages.length){
+      forbiddenStatus.textContent = forbiddenMessages[forbiddenClicks - 1];
+    } else {
+      forbiddenStatus.textContent = 'LSD SIMULATOR 🌈';
+      document.body.classList.toggle('party-mode');
+      soundFanfare();
+      spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 50, ['🪩', '🎉', '🌴', '🍍', '🕶️', '⚡']);
+      showToast('LSD SIMULATOR 🌈');
+      addXp(80, e.clientX, e.clientY);
+    }
+  });
+
+  /* ==========================================================================
+     SALA GIOCHI: 2. L'ORACOLO DELLE SCUSE
+     ========================================================================== */
+  var oracleQuote = document.getElementById('oracleQuote');
+  var btnNewExcuse = document.getElementById('btnNewExcuse');
+  var btnCopyExcuse = document.getElementById('btnCopyExcuse');
+
+  var excuses = [
+    '"Il codice funzionava benissimo, poi Mercurio è entrato in retrogrado."',
+    '"Il mio gatto sta sostenendo un esame orale di diritto privato su Zoom."',
+    '"Non posso lavorare: sto aspettando che si asciughi l\'inchiostro del codice digitale."',
+    '"Il compilatore si è offeso per un punto e virgola di troppo e non mi parla più."',
+    '"Ho appena scoperto che procrastinare brucia calorie mentali. Sono a dieta."',
+    '"La tastiera ha finito l\'inchiostro per le vocali."',
+    '"Oggi sono in modalità sciopero esotico permanente."'
+  ];
+  var excuseIdx = 0;
+
+  function newExcuse(){
+    soundPop();
+    excuseIdx = (excuseIdx + 1) % excuses.length;
+    oracleQuote.style.opacity = '0';
+    setTimeout(function(){
+      oracleQuote.textContent = excuses[excuseIdx];
+      oracleQuote.style.opacity = '1';
+    }, 150);
+  }
+
+  btnNewExcuse.addEventListener('click', function(e){
+    newExcuse();
+    var b = this.getBoundingClientRect();
+    spawnBurst(b.left + b.width / 2, b.top + b.height / 2, 6, ['🔮', '✨']);
+  });
+
+  btnCopyExcuse.addEventListener('click', function(){
+    soundPop();
+    var text = oracleQuote.textContent.replace(/^"|"$/g, '');
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text);
+      showToast('📋 Scusa copiata negli appunti! Mandagliela con orgoglio.');
+    } else {
+      showToast('📋 Scusa pronta da declamare a voce!');
+    }
+  });
+
+  /* ==========================================================================
+     SALA GIOCHI: 3. ACCHIAPPA IL NERO (MINI-GAME)
+     ========================================================================== */
+  var clickerArea = document.getElementById('clickerArea');
+  var btnStartClicker = document.getElementById('btnStartClicker');
+  var gameTimerEl = document.getElementById('gameTimer');
+  var gameScoreEl = document.getElementById('gameScore');
+  var gameRecordEl = document.getElementById('gameRecord');
+  var clickerPrompt = document.getElementById('clickerPrompt');
+
+  var gameActive = false;
+  var gameScore = 0;
+  var gameHighscore = 0;
+  var gameTimeLeft = 15;
+  var gameInterval = null;
+  var currentTarget = null;
+  var exoticEmojis = ['👩🏿', '👨🏿', '🧑🏿', '👧🏿', '👦🏿', '🧒🏿', '👶🏿', '🧑🏿‍🦰'];
+
+  function spawnTarget(){
+    if(!gameActive) return;
+    if(currentTarget && currentTarget.parentNode){
+      currentTarget.parentNode.removeChild(currentTarget);
+    }
+    var target = document.createElement('div');
+    target.className = 'clicker-target';
+    target.textContent = exoticEmojis[Math.floor(Math.random() * exoticEmojis.length)];
+    
+    var w = clickerArea.clientWidth - 45;
+    var h = clickerArea.clientHeight - 45;
+    var x = Math.max(10, Math.random() * w);
+    var y = Math.max(10, Math.random() * h);
+
+    target.style.left = x + 'px';
+    target.style.top = y + 'px';
+
+    target.addEventListener('pointerdown', function(e){
+      if(!gameActive) return;
+      gameScore++;
+      gameScoreEl.textContent = gameScore;
+      soundPop();
+      spawnBurst(e.clientX, e.clientY, 8, ['⭐', '✨']);
+      spawnTarget();
+    });
+
+    clickerArea.appendChild(target);
+    currentTarget = target;
+  }
+
+  btnStartClicker.addEventListener('click', function(){
+    if(gameActive) return;
+    gameActive = true;
+    gameScore = 0;
+    gameTimeLeft = 15;
+    gameScoreEl.textContent = '0';
+    gameTimerEl.textContent = '15';
+    btnStartClicker.disabled = true;
+    btnStartClicker.style.opacity = '0.5';
+    clickerPrompt.style.display = 'none';
+
+    soundFanfare();
+    spawnTarget();
+
+    gameInterval = setInterval(function(){
+      gameTimeLeft--;
+      gameTimerEl.textContent = gameTimeLeft;
+      if(gameTimeLeft <= 0){
+        clearInterval(gameInterval);
+        endGame();
+      }
+    }, 1000);
+  });
+
+  function endGame(){
+    gameActive = false;
+    btnStartClicker.disabled = false;
+    btnStartClicker.style.opacity = '1';
+    if(currentTarget && currentTarget.parentNode){
+      currentTarget.parentNode.removeChild(currentTarget);
+    }
+    clickerPrompt.style.display = 'block';
+    clickerPrompt.innerHTML = 'Tempo scaduto! Punteggio: <strong>' + gameScore + '</strong> punti! 🎉';
+
+    if(gameScore > gameHighscore){
+      gameHighscore = gameScore;
+      gameRecordEl.textContent = gameHighscore;
+      showToast('🏆 NUOVO RECORD IN ACCHIAPPA IL NERO: ' + gameHighscore + ' punti!');
+      soundFanfare();
+    } else {
+      showToast('Bravo! Hai totalizzato ' + gameScore + ' punti esotici!');
+    }
+    addXp(gameScore * 10, window.innerWidth / 2, window.innerHeight / 2);
+  }
+
+  /* ==========================================================================
+     PROGETTI INTERATTIVI (SIMULAZIONI COMODE)
+     ========================================================================== */
+  var testProjBtns = document.querySelectorAll('.btn-test-proj');
+  testProjBtns.forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      soundPop();
+      var type = btn.getAttribute('data-proj');
+      var fb = btn.nextElementSibling;
+      var b = btn.getBoundingClientRect();
+
+      if(type === 'niente'){
+        fb.textContent = 'Esecuzione: 0 millisecondi. Risultato: assolutamente nulla.';
+        spawnBurst(b.left + b.width / 2, b.top + b.height / 2, 8, ['💨', '✨']);
+        showToast('✅ "Niente" eseguito con impeccabile perfezione.');
+      } else if(type === 'boh'){
+        var bohFaces = ['¯\\_(ツ)_/¯', '┐(‘～` )┌', '¯\\(°_o)/¯'];
+        var face = bohFaces[Math.floor(Math.random() * bohFaces.length)];
+        fb.textContent = 'Boh AI risponde: ' + face;
+        spawnBurst(b.left + b.width / 2, b.top + b.height / 2, 8, ['🤖', '❓']);
+        showToast('🤖 Boh ha ponderato l\'universo e se ne lava le mani.');
+      } else if(type === 'forse'){
+        var outcomes = ['Forse sì 🌤️', 'Forse no 🌧️', 'Forse martedì 🗓️', 'Chiedi al gatto 🐈'];
+        var out = outcomes[Math.floor(Math.random() * outcomes.length)];
+        fb.textContent = 'Esito Quantistico: ' + out;
+        spawnBurst(b.left + b.width / 2, b.top + b.height / 2, 8, ['🪙', '✨']);
+        showToast('🔮 La sfortuna si è espressa!');
+      }
+    });
+  });
+
+  /* ==========================================================================
+     CONTATTI & SOCIAL INTERATTIVI
+     ========================================================================== */
+  var mailLink = document.getElementById('mailLink');
+  mailLink.addEventListener('click', function(e){
+    e.preventDefault();
+    soundPop();
+    var email = 'francymaesotico@gmail.com';
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(email);
+      showToast('📩 Email (' + email + ') copiata! Ora puoi mandarmi dei meme.');
+    } else {
+      showToast('📩 Email: ' + email);
+    }
+    var b = mailLink.getBoundingClientRect();
+    spawnBurst(b.left + b.width / 2, b.top + b.height / 2, 15, ['✉️', '🎉', '💖']);
+  });
+
+  var socialLinks = document.querySelectorAll('.social-link');
+  socialLinks.forEach(function(link){
+    link.addEventListener('click', function(e){
+      e.preventDefault();
+      soundPop();
+      var msg = link.getAttribute('data-msg');
+      showToast(msg);
+      var b = link.getBoundingClientRect();
+      spawnBurst(b.left + b.width / 2, b.top + b.height / 2, 8, ['🚀', '✨']);
+    });
+  });
+
+  /* ==========================================================================
+     BANNER TARALLI (COOKIE IRONICO)
+     ========================================================================== */
+  var taralloBanner = document.getElementById('taralloBanner');
+  var btnAcceptTarallo = document.getElementById('btnAcceptTarallo');
+  var btnRejectTarallo = document.getElementById('btnRejectTarallo');
+  var taralloDismissed = false;
+
+  btnAcceptTarallo.addEventListener('click', function(e){
+    taralloDismissed = true;
+    soundPop();
+    var b = btnAcceptTarallo.getBoundingClientRect();
+    spawnBurst(b.left + b.width / 2, b.top + b.height / 2, 20, ['🥯', '😋', '✨']);
+    taralloBanner.classList.remove('visible');
+    setTimeout(function(){ taralloBanner.style.display = 'none'; }, 450);
+    showToast('🥯 Tarallo mangiato. Calorie assorbite: 0.');
+    addXp(30, e.clientX, e.clientY);
+  });
+
+  btnRejectTarallo.addEventListener('click', function(){
+    taralloDismissed = true;
+    soundPop();
+    taralloBanner.classList.remove('visible');
+    setTimeout(function(){ taralloBanner.style.display = 'none'; }, 450);
+    showToast('🍏 Purtroppo rispetto la tua dieta.');
+  });
+
+  /* ==========================================================================
+     EASTER EGG: CODICE KONAMI (↑ ↑ ↓ ↓ ← → ← → B A)
+     ========================================================================== */
+  var konamiSeq = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  var konamiIdx = 0;
+
+  window.addEventListener('keydown', function(e){
+    var key = e.key.toLowerCase();
+    var targetKey = konamiSeq[konamiIdx].toLowerCase();
+
+    if(key === targetKey){
+      konamiIdx++;
+      if(konamiIdx === konamiSeq.length){
+        konamiIdx = 0;
+        soundFanfare();
+        spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 60, ['🕶️', '🌴', '👑', '🎉', '🔥']);
+        showToast('🕶️ CODICE SEGRETO ATTIVATO! LIVELLO ESOTICO: 9999!', 4000);
+        addXp(200, window.innerWidth / 2, window.innerHeight / 2);
+      }
+    } else {
+      konamiIdx = 0;
+    }
+  });
+
+  /* ---- TEMA CHIARO/SCURO ---- */
   document.getElementById('theme').addEventListener('click', function(){
+    soundPop();
     var isDark = root.dataset.theme
       ? root.dataset.theme === 'dark'
       : !window.matchMedia('(prefers-color-scheme: light)').matches;
     root.dataset.theme = isDark ? 'light' : 'dark';
+    showToast(isDark ? '☀️ Tema chiaro attivato' : '🌙 Tema scuro attivato');
   });
 
-  /* ---- reveal allo scroll (con ritardi a cascata) ---- */
+  /* ---- REVEAL ALLO SCROLL (CON RITARDI A CASCATA) ---- */
   var revealEls = document.querySelectorAll('.reveal');
   if (reduce || !('IntersectionObserver' in window)) {
     revealEls.forEach(function(el){ el.classList.add('in'); });
   } else {
-    document.querySelectorAll('.skills, .wrap').forEach(function(group){
+    document.querySelectorAll('.skills, .wrap, .games-grid').forEach(function(group){
       var n = 0;
       group.querySelectorAll(':scope > .reveal').forEach(function(el){
         el.style.setProperty('--d', (n++ * 0.08) + 's');
@@ -294,16 +1276,27 @@ footer{padding:2rem 0;color:var(--mute);font-size:.9rem}
     revealEls.forEach(function(el){ io.observe(el); });
   }
 
-  /* ---- alone che segue il mouse nell'hero (come prima) ---- */
+  /* ---- ALONE CHE SEGUE IL MOUSE NELL'HERO ---- */
   stage.addEventListener('pointermove', function(e){
     var b = stage.getBoundingClientRect();
     stage.style.setProperty('--x', (e.clientX - b.left) + 'px');
     stage.style.setProperty('--y', (e.clientY - b.top) + 'px');
   });
 
-  if (reduce) { return; }
+  if (reduce) {
+    window.addEventListener('scroll', function(){
+      if (!taralloDismissed) {
+        if (window.scrollY > 250) {
+          taralloBanner.classList.add('visible');
+        } else {
+          taralloBanner.classList.remove('visible');
+        }
+      }
+    }, {passive:true});
+    return;
+  }
 
-  /* ---- intro: scritta grande su nero che si rimpicciolisce ---- */
+  /* ---- INTRO ANIMATA ORIGINALE: SCRITTA GRANDE SU NERO CHE SI RIMPICCIOLISCE ---- */
   intro.classList.add('anim');
 
   var vw = 0, vh = 0, s0 = 1, dx = 0, dy = 0, range = 1;
@@ -352,6 +1345,15 @@ footer{padding:2rem 0;color:var(--mute);font-size:.9rem}
     nav.classList.toggle('off', navA < .5);
     nav.classList.toggle('scrolled', p >= .9);
 
+    /* Il messaggio dei cookie compare solo dopo essere usciti dalla schermata full-screen dell'intro */
+    if (!taralloDismissed) {
+      if (p >= 0.95) {
+        taralloBanner.classList.add('visible');
+      } else {
+        taralloBanner.classList.remove('visible');
+      }
+    }
+
     if (usePointer) setGlow(lastX, lastY);
   }
 
@@ -364,7 +1366,6 @@ footer{padding:2rem 0;color:var(--mute);font-size:.9rem}
     setGlow(lastX, lastY);
   }, {passive:true});
 
-  // Senza mouse (touch) l'alone vaga piano dentro le lettere
   function drift(t){
     if (!usePointer && window.scrollY < range + vh) {
       var r = h1.getBoundingClientRect();
