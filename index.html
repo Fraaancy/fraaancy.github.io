@@ -5,131 +5,247 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Francy — Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#17132b; --bg2:#201a3d; --ink:#f4f1ff; --mute:#9d96c2; --line:#3a3263; --accent:#ffb38a; --glow:#6c4cff;
-  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif; --body:"DM Sans","Segoe UI",system-ui,sans-serif;
-  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#17132b; --bg2:#201a3d; --ink:#f4f1ff; --mute:#a9a2d1; --line:#3a3263;
+  --accent:#ffb38a; --accent-ink:#1b1636; --glow:#6c4cff;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"DM Sans","Segoe UI",system-ui,sans-serif;
+  color-scheme:dark;
 }
 @media (prefers-color-scheme:light){
-  :root:not([data-theme="dark"]){--bg:#f5f3ff;--bg2:#ebe7ff;--ink:#1b1636;--mute:#5f5887;--line:#cfc8f5;--accent:#d2491f;--glow:#a99cff}
+  :root:not([data-theme="dark"]){
+    --bg:#f5f3ff; --bg2:#ebe7ff; --ink:#1b1636; --mute:#5f5887; --line:#cfc8f5;
+    --accent:#d2491f; --accent-ink:#ffffff; --glow:#a99cff; color-scheme:light;
+  }
 }
-:root[data-theme="light"]{--bg:#f5f3ff;--bg2:#ebe7ff;--ink:#1b1636;--mute:#5f5887;--line:#cfc8f5;--accent:#d2491f;--glow:#a99cff}
-:root[data-theme="dark"]{--bg:#17132b;--bg2:#201a3d;--ink:#f4f1ff;--mute:#9d96c2;--line:#3a3263;--accent:#ffb38a;--glow:#6c4cff}
-*,*::before,*::after{box-sizing:inherit}
-html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 1.0625rem/1.65 var(--body);-webkit-font-smoothing:antialiased}
-a{color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
-.wrap{max-width:1040px;margin:0 auto;padding:0 1.5rem}
+:root[data-theme="light"]{
+  --bg:#f5f3ff; --bg2:#ebe7ff; --ink:#1b1636; --mute:#5f5887; --line:#cfc8f5;
+  --accent:#d2491f; --accent-ink:#ffffff; --glow:#a99cff; color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#17132b; --bg2:#201a3d; --ink:#f4f1ff; --mute:#a9a2d1; --line:#3a3263;
+  --accent:#ffb38a; --accent-ink:#1b1636; --glow:#6c4cff; color-scheme:dark;
+}
 
-nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 78%,transparent)}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:80px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.0625rem/1.65 var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+::selection{background:var(--accent);color:var(--accent-ink)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1.25rem,4vw,2rem)}
+
+/* ---------- NAV ---------- */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:20;
+  padding-top:env(safe-area-inset-top,0px);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:color-mix(in srgb,var(--bg) 78%,transparent);
+  border-bottom:1px solid transparent;transition:border-color .3s;
+  opacity:var(--na,1);
+}
+nav.off{pointer-events:none}
+nav.off:focus-within{opacity:1;pointer-events:auto}
+nav.scrolled{border-bottom-color:var(--line)}
 nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
 .logo{font:800 1.25rem var(--display);text-decoration:none;letter-spacing:-.02em}
 nav ul{display:flex;gap:1.5rem;list-style:none;margin:0;padding:0;align-items:center}
-nav a{text-decoration:none;color:var(--mute);font-weight:500;font-size:.95rem;transition:color .2s}
-nav a:hover{color:var(--ink)}
-#theme{background:none;border:1px solid var(--line);color:var(--ink);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1rem}
+nav a.link{text-decoration:none;color:var(--mute);font-weight:500;font-size:.95rem;transition:color .2s}
+nav a.link:hover{color:var(--ink)}
+#theme{
+  background:none;border:1px solid var(--line);color:var(--ink);width:40px;height:40px;
+  border-radius:50%;cursor:pointer;font-size:1rem;display:grid;place-items:center;
+  transition:border-color .2s,transform .25s;
+}
+#theme:hover{border-color:var(--accent);transform:rotate(-20deg)}
 @media(max-width:560px){nav ul li.hide{display:none}}
 
-.hero{position:relative;overflow:hidden;padding:clamp(4rem,12vw,9rem) 0 clamp(4rem,9vw,7rem)}
-.hero::before{content:"";position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(520px circle at var(--x,70%) var(--y,30%),color-mix(in srgb,var(--glow) 38%,transparent),transparent 70%)}
-.hero .wrap{position:relative}
-.hello{color:var(--mute);margin:0 0 1rem;animation:rise .8s .05s both}
-h1{font:800 clamp(4.5rem,18vw,13rem)/.86 var(--display);letter-spacing:-.045em;margin:0;animation:rise .9s .15s both}
-.lead{max-width:34rem;font-size:clamp(1.15rem,2.4vw,1.5rem);line-height:1.45;margin:2rem 0 2.2rem;animation:rise .9s .3s both}
-.cta{display:flex;gap:.9rem;flex-wrap:wrap;animation:rise .9s .45s both}
-.btn{display:inline-block;padding:.85rem 1.5rem;border-radius:999px;text-decoration:none;font-weight:500;transition:transform .2s,background .2s}
-.btn.main{background:var(--accent);color:#1b1636}
-.btn.ghost{border:1px solid var(--line)}
-.btn:hover{transform:translateY(-2px)}
-@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+/* ---------- HERO / INTRO ---------- */
+/* Senza JS (o con movimento ridotto) è l'hero statico di sempre. */
+.intro{position:relative}
+.stage{
+  position:relative;overflow:hidden;
+  padding:calc(clamp(4rem,12vw,9rem) + 64px + env(safe-area-inset-top,0px)) 0 clamp(4rem,9vw,7rem);
+}
+.stage::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(520px circle at var(--x,70%) var(--y,30%),color-mix(in srgb,var(--glow) 38%,transparent),transparent 70%);
+}
+.stage .wrap{position:relative;z-index:2}
+.veil{display:none}
+.cue{display:none}
 
+.hello{color:var(--mute);margin:0 0 1rem;opacity:var(--c1,1);transform:translateY(calc((1 - var(--c1,1)) * 24px))}
+h1{
+  position:relative;width:fit-content;white-space:nowrap;
+  font:800 clamp(4.5rem,18vw,13rem)/.86 var(--display);letter-spacing:-.045em;margin:0;
+  color:color-mix(in srgb,var(--ink) var(--ia,100%),transparent);
+  transform-origin:50% 50%;
+}
+h1::after{display:none}
+.lead{
+  max-width:34rem;font-size:clamp(1.15rem,2.4vw,1.5rem);line-height:1.45;margin:2rem 0 2.2rem;
+  opacity:var(--c2,1);transform:translateY(calc((1 - var(--c2,1)) * 24px));
+}
+.cta{display:flex;gap:.9rem;flex-wrap:wrap;opacity:var(--c3,1);transform:translateY(calc((1 - var(--c3,1)) * 24px))}
+.btn{
+  display:inline-block;padding:.85rem 1.5rem;border-radius:999px;text-decoration:none;font-weight:500;
+  transition:transform .2s,background .2s,border-color .2s,color .2s,box-shadow .2s;
+}
+.btn.main{background:var(--accent);color:var(--accent-ink)}
+.btn.main:hover{transform:translateY(-2px);box-shadow:0 10px 30px -10px var(--accent)}
+.btn.ghost{border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+
+/* Modalità animata */
+.intro.anim{height:calc(max(100vh,620px) + 90vh);height:calc(max(100svh,620px) + 90vh)}
+.intro.anim .stage{position:sticky;top:0;height:max(100vh,620px);height:max(100svh,620px)}
+.intro.anim .veil{display:block;position:absolute;inset:0;z-index:1;background:#000;opacity:var(--va,1);pointer-events:none}
+.intro.anim .cue{
+  display:block;position:absolute;z-index:3;left:50%;bottom:calc(1.6rem + env(safe-area-inset-bottom,0px));
+  width:24px;height:40px;border:1.5px solid rgba(255,255,255,.4);border-radius:13px;
+  transform:translateX(-50%);opacity:var(--cu,1);pointer-events:none;
+}
+.cue::after{
+  content:"";position:absolute;left:50%;top:8px;width:3px;height:8px;border-radius:2px;background:#fff;
+  transform:translateX(-50%);animation:wheel 1.7s ease-in-out infinite;
+}
+@keyframes wheel{0%{opacity:0;transform:translate(-50%,0)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,13px)}}
+@keyframes appear{from{opacity:0}to{opacity:1}}
+
+.intro.anim h1{animation:appear 1.4s .1s both}
+.intro.anim h1::after{
+  display:block;content:attr(data-text);position:absolute;
+  inset:-.2em -.08em -.3em;padding:.2em .08em .3em;
+  pointer-events:none;opacity:var(--oa,1);
+  background:radial-gradient(circle 1.7em at var(--hx,50%) var(--hy,50%),
+    #ffe0cc 0,#ffb38a 10%,#a98bff 34%,#5b45c4 58%,#2d2560 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+}
+.intro.anim .cta{visibility:hidden}
+.intro.anim .stage.ready .cta{visibility:visible}
+
+/* ---------- SEZIONI ---------- */
 section{padding:clamp(3.5rem,8vw,6rem) 0;border-top:1px solid var(--line)}
 h2{font:800 clamp(2rem,5vw,3.25rem)/1.05 var(--display);letter-spacing:-.03em;margin:0 0 2.5rem}
 
 .about{display:grid;grid-template-columns:1.3fr 1fr;gap:3rem}
 .about p{margin:0 0 1.2rem;max-width:36rem}
 .skills{display:flex;flex-wrap:wrap;gap:.6rem;align-content:flex-start;padding:0;margin:0;list-style:none}
-.skills li{border:1px solid var(--line);padding:.4rem 1rem;border-radius:999px;font-size:.95rem;color:var(--mute)}
+.skills li{
+  border:1px solid var(--line);padding:.45rem 1rem;border-radius:999px;font-size:.95rem;
+  color:var(--mute);background:var(--bg2);
+}
+.skills li:hover{border-color:var(--accent);color:var(--ink)}
 @media(max-width:760px){.about{grid-template-columns:1fr;gap:1.5rem}}
 
-.proj{display:grid;grid-template-columns:1fr auto;gap:.5rem 2rem;align-items:baseline;padding:1.8rem 0;border-bottom:1px solid var(--line);text-decoration:none;position:relative;transition:padding .3s}
+.proj{
+  display:grid;grid-template-columns:1fr auto;gap:.5rem 2rem;align-items:baseline;
+  padding:1.8rem 3rem 1.8rem 0;border-bottom:1px solid var(--line);text-decoration:none;position:relative;
+}
 .proj:first-of-type{border-top:1px solid var(--line)}
 .proj h3{font:800 clamp(1.6rem,4vw,2.5rem)/1.1 var(--display);letter-spacing:-.025em;margin:0;transition:color .25s}
 .proj p{grid-column:1;margin:0;color:var(--mute);max-width:40rem}
-.proj .tag{grid-row:1;grid-column:2;color:var(--mute);font-size:.9rem;text-align:right}
+.proj p:empty,.proj .tag:empty{display:none}
+.proj::after{
+  content:"→";position:absolute;right:0;top:50%;transform:translateY(-50%);
+  font-size:1.8rem;color:var(--mute);transition:transform .3s,color .3s;
+}
 .proj:hover{padding-left:1rem}
-.proj:hover h3{color:var(--accent)}
-@media(max-width:560px){.proj{grid-template-columns:1fr}.proj .tag{grid-row:auto;grid-column:1;text-align:left}}
+.proj:hover h3,.proj:hover::after{color:var(--accent)}
+.proj:hover::after{transform:translate(6px,-50%)}
 
 .contact{background:var(--bg2)}
 .contact h2{margin-bottom:1.2rem}
-.mail{font:800 clamp(1.4rem,5vw,3rem) var(--display);letter-spacing:-.03em;text-decoration:none;border-bottom:3px solid var(--accent);word-break:break-all}
-.social{display:flex;gap:1.5rem;margin-top:2rem;flex-wrap:wrap}
-.social a{color:var(--mute);text-decoration:none}
-.social a:hover{color:var(--ink)}
+.mail{
+  font:800 clamp(1.4rem,5vw,3rem) var(--display);letter-spacing:-.03em;text-decoration:none;
+  border-bottom:3px solid var(--accent);word-break:break-all;transition:color .2s;
+}
+.mail:hover{color:var(--accent)}
+.social{display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap}
+.social a{
+  color:var(--ink);text-decoration:none;padding:.6rem 1.1rem;border:1px solid var(--line);
+  border-radius:999px;font-size:.95rem;transition:border-color .2s,color .2s;
+}
+.social a:hover{border-color:var(--accent);color:var(--accent)}
 footer{padding:2rem 0;color:var(--mute);font-size:.9rem}
 
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+/* ---------- REVEAL ALLO SCROLL ---------- */
+.js .reveal{opacity:0;transform:translateY(32px);transition:opacity .9s ease var(--d,0s),transform .9s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
+.js .reveal.in{opacity:1;transform:none}
+.js .proj.reveal{transition:opacity .9s ease var(--d,0s),transform .9s cubic-bezier(.2,.7,.2,1) var(--d,0s),padding .3s}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+  .js .reveal{opacity:1;transform:none}
+}
 </style>
 </head>
 <body>
-<nav><div class="wrap">
+<nav id="nav"><div class="wrap">
   <a class="logo" href="#top">Francy</a>
   <ul>
-    <li class="hide"><a href="#chi-sono">Chi non sono</a></li>
-    <li class="hide"><a href="#progetti">Non progetti</a></li>
-    <li><a href="#contatti">Forse</a></li>
+    <li class="hide"><a class="link" href="#chi-sono">Chi non sono</a></li>
+    <li class="hide"><a class="link" href="#progetti">Non progetti</a></li>
+    <li><a class="link" href="#contatti">Forse</a></li>
     <li><button id="theme" aria-label="Cambia tema">◐</button></li>
   </ul>
 </div></nav>
 
-<header class="hero" id="top"><div class="wrap">
-  <p class="hello">Ciao, sono ESOTICO.</p>
-  <h1>Francy</h1>
-  <p class="lead"></p>
-  <div class="cta">
-    <a class="btn main" href="#progetti">Non guardare i progetti!</a>
-    <a class="btn ghost" href="#contatti">Non scrivermi!</a>
+<header class="intro" id="top">
+  <div class="stage" id="stage">
+    <div class="veil" aria-hidden="true"></div>
+    <div class="wrap">
+      <p class="hello">Ciao, sono ESOTICO.</p>
+      <h1 id="name" data-text="Francy">Francy</h1>
+      <p class="lead"></p>
+      <div class="cta">
+        <a class="btn main" href="#progetti">Non guardare i progetti!</a>
+        <a class="btn ghost" href="#contatti">Non scrivermi!</a>
+      </div>
+    </div>
+    <div class="cue" aria-hidden="true"></div>
   </div>
-</div></header>
+</header>
 
 <main>
 <section id="chi-sono"><div class="wrap">
-  <h2>Chi non sono</h2>
+  <h2 class="reveal">Chi non sono</h2>
   <div class="about">
-    <div>
+    <div class="reveal">
       <p>Paolo Bonolis.</p>
     </div>
     <ul class="skills">
-      <li>Ignorante</li><li>Deficiente</li><li>Stupidino</li><li>Non lo so</li><li>Qualcosa</li><li>ESOTICISSIMO</li>
+      <li class="reveal">Ignorante</li><li class="reveal">Deficiente</li><li class="reveal">Stupidino</li><li class="reveal">Non lo so</li><li class="reveal">Qualcosa</li><li class="reveal">ESOTICISSIMO</li>
     </ul>
   </div>
 </div></section>
 
 <section id="progetti"><div class="wrap">
-  <h2>Progetti</h2>
-  <a class="proj" href="#contatti">
+  <h2 class="reveal">Progetti</h2>
+  <a class="proj reveal" href="#contatti">
     <h3>Niente</h3><span class="tag"></span>
     <p></p>
   </a>
-  <a class="proj" href="#contatti">
+  <a class="proj reveal" href="#contatti">
     <h3>Boh</h3><span class="tag"></span>
     <p></p>
   </a>
-  <a class="proj" href="#contatti">
+  <a class="proj reveal" href="#contatti">
     <h3>Forse</h3><span class="tag"></span>
     <p></p>
   </a>
 </div></section>
 
 <section class="contact" id="contatti"><div class="wrap">
-  <h2>Non lavoriamo insieme!</h2>
-  <a class="mail" href="mailto:ciao@esempio.it">stupidino@stupidini.com</a>
-  <div class="social">
+  <h2 class="reveal">Non lavoriamo insieme!</h2>
+  <a class="mail reveal" href="mailto:ciao@esempio.it">stupidino@stupidini.com</a>
+  <div class="social reveal">
     <a href="#">GitHub</a><a href="#">Youtube</a><a href="#">Twitch</a>
   </div>
 </div></section>
@@ -139,17 +255,129 @@ footer{padding:2rem 0;color:var(--mute);font-size:.9rem}
 
 <script>
 (function(){
-  var r=document.documentElement,h=document.querySelector('.hero');
-  document.getElementById('y').textContent=new Date().getFullYear();
-  h.addEventListener('pointermove',function(e){
-    var b=h.getBoundingClientRect();
-    h.style.setProperty('--x',(e.clientX-b.left)+'px');
-    h.style.setProperty('--y',(e.clientY-b.top)+'px');
+  var root = document.documentElement;
+  var intro = document.getElementById('top');
+  var stage = document.getElementById('stage');
+  var nav   = document.getElementById('nav');
+  var h1    = document.getElementById('name');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.getElementById('y').textContent = new Date().getFullYear();
+  root.classList.add('js');
+
+  function clamp(v){ return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+  /* ---- tema ---- */
+  document.getElementById('theme').addEventListener('click', function(){
+    var isDark = root.dataset.theme
+      ? root.dataset.theme === 'dark'
+      : !window.matchMedia('(prefers-color-scheme: light)').matches;
+    root.dataset.theme = isDark ? 'light' : 'dark';
   });
-  document.getElementById('theme').addEventListener('click',function(){
-    var dark=r.dataset.theme?r.dataset.theme==='dark':!matchMedia('(prefers-color-scheme: light)').matches;
-    r.dataset.theme=dark?'light':'dark';
+
+  /* ---- reveal allo scroll (con ritardi a cascata) ---- */
+  var revealEls = document.querySelectorAll('.reveal');
+  if (reduce || !('IntersectionObserver' in window)) {
+    revealEls.forEach(function(el){ el.classList.add('in'); });
+  } else {
+    document.querySelectorAll('.skills, .wrap').forEach(function(group){
+      var n = 0;
+      group.querySelectorAll(':scope > .reveal').forEach(function(el){
+        el.style.setProperty('--d', (n++ * 0.08) + 's');
+      });
+    });
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, {threshold:.15, rootMargin:'0px 0px -6% 0px'});
+    revealEls.forEach(function(el){ io.observe(el); });
+  }
+
+  /* ---- alone che segue il mouse nell'hero (come prima) ---- */
+  stage.addEventListener('pointermove', function(e){
+    var b = stage.getBoundingClientRect();
+    stage.style.setProperty('--x', (e.clientX - b.left) + 'px');
+    stage.style.setProperty('--y', (e.clientY - b.top) + 'px');
   });
+
+  if (reduce) { return; }
+
+  /* ---- intro: scritta grande su nero che si rimpicciolisce ---- */
+  intro.classList.add('anim');
+
+  var vw = 0, vh = 0, s0 = 1, dx = 0, dy = 0, range = 1;
+  var usePointer = false, lastX = 0, lastY = 0;
+
+  function measure(){
+    h1.style.transform = 'none';
+    var sb = stage.getBoundingClientRect();
+    var hb = h1.getBoundingClientRect();
+    var cx = hb.left - sb.left + hb.width / 2;
+    var cy = hb.top  - sb.top  + hb.height / 2;
+    vw = stage.clientWidth;
+    vh = stage.clientHeight;
+    s0 = Math.max(1, Math.min(vw * 0.9 / hb.width, vh * 0.7 / hb.height));
+    dx = vw / 2 - cx;
+    dy = vh / 2 - cy;
+    range = Math.max(1, intro.offsetHeight - stage.offsetHeight);
+    update();
+  }
+
+  function setGlow(px, py){
+    var r = h1.getBoundingClientRect();
+    var sc = r.width / h1.offsetWidth || 1;
+    h1.style.setProperty('--hx', ((px - r.left) / sc) + 'px');
+    h1.style.setProperty('--hy', ((py - r.top)  / sc) + 'px');
+  }
+
+  function update(){
+    var y = window.scrollY - intro.offsetTop;
+    var p = clamp(y / range);
+    var e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;   // easeInOutCubic
+    var s = s0 + (1 - s0) * e;
+
+    h1.style.transform = 'translate(' + (dx * (1 - e)) + 'px,' + (dy * (1 - e)) + 'px) scale(' + s + ')';
+    stage.style.setProperty('--va', 1 - e);
+    stage.style.setProperty('--oa', clamp(1 - e * 1.25));
+    stage.style.setProperty('--ia', (clamp((e - .35) / .65) * 100) + '%');
+    stage.style.setProperty('--c1', clamp((p - .55) / .3));
+    stage.style.setProperty('--c2', clamp((p - .65) / .3));
+    stage.style.setProperty('--c3', clamp((p - .75) / .25));
+    stage.style.setProperty('--cu', clamp(1 - p * 6));
+    stage.classList.toggle('ready', p > .75);
+
+    var navA = clamp((p - .6) / .3);
+    nav.style.setProperty('--na', navA);
+    nav.classList.toggle('off', navA < .5);
+    nav.classList.toggle('scrolled', p >= .9);
+
+    if (usePointer) setGlow(lastX, lastY);
+  }
+
+  window.addEventListener('scroll', function(){ requestAnimationFrame(update); }, {passive:true});
+  window.addEventListener('resize', measure);
+
+  window.addEventListener('pointermove', function(e){
+    if (e.pointerType === 'touch') return;
+    usePointer = true; lastX = e.clientX; lastY = e.clientY;
+    setGlow(lastX, lastY);
+  }, {passive:true});
+
+  // Senza mouse (touch) l'alone vaga piano dentro le lettere
+  function drift(t){
+    if (!usePointer && window.scrollY < range + vh) {
+      var r = h1.getBoundingClientRect();
+      setGlow(r.left + r.width  * (.5 + .38 * Math.sin(t / 1900)),
+              r.top  + r.height * (.5 + .30 * Math.sin(t / 1300 + 1)));
+    }
+    requestAnimationFrame(drift);
+  }
+  requestAnimationFrame(drift);
+
+  measure();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+  window.addEventListener('load', measure);
 })();
 </script>
 </body>
