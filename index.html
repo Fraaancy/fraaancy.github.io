@@ -278,6 +278,34 @@ h2{font:800 clamp(2rem,5vw,3.25rem)/1.05 var(--display);letter-spacing:-.03em;ma
 .clicker-target:active{transform:scale(0.85)}
 .clicker-stats{display:flex;justify-content:space-between;font-size:.9rem;font-weight:700;margin-bottom:.8rem}
 
+/* Canali Social nei Progetti */
+.projects-channels{
+  display:flex;gap:.9rem;flex-wrap:wrap;margin:0 0 2rem;
+}
+.btn-channel{
+  display:inline-flex;align-items:center;gap:.65rem;
+  padding:.7rem 1.35rem;border-radius:999px;
+  font-weight:700;font-size:.95rem;text-decoration:none;
+  border:1px solid var(--line);background:var(--bg2);color:var(--ink);
+  transition:transform .2s,border-color .2s,box-shadow .2s,background .2s,color .2s;
+  cursor:pointer;
+}
+.btn-channel svg{display:block;flex-shrink:0;transition:transform .2s}
+.btn-channel:hover{transform:translateY(-2px)}
+.btn-channel:hover svg{transform:scale(1.15)}
+
+.btn-youtube:hover{
+  border-color:#ff0033;color:#fff;background:color-mix(in srgb,#ff0033 18%,var(--bg2));
+  box-shadow:0 8px 25px -8px rgba(255,0,51,0.5);
+}
+.btn-youtube svg{color:#ff0033}
+
+.btn-twitch:hover{
+  border-color:#9146ff;color:#fff;background:color-mix(in srgb,#9146ff 18%,var(--bg2));
+  box-shadow:0 8px 25px -8px rgba(145,70,255,0.5);
+}
+.btn-twitch svg{color:#a970ff}
+
 /* ---------- PROGETTI ---------- */
 .proj{
   display:grid;grid-template-columns:1fr auto;gap:.5rem 2rem;align-items:baseline;
@@ -411,8 +439,8 @@ body.party-mode{
   </a>
   <ul>
     <li class="hide"><a class="link" href="#chi-sono">Chi non sono</a></li>
+    <li class="hide"><a class="link" href="#progetti">Progetti Scadenti</a></li>
     <li class="hide"><a class="link" href="#giochi">Sala Giochi</a></li>
-    <li class="hide"><a class="link" href="#progetti">Non progetti</a></li>
     <li><a class="link" href="#contatti">Forse</a></li>
     <li><button class="nav-icon-btn" id="soundToggle" aria-label="Attiva o disattiva effetti sonori" title="Attiva/disattiva suoni">🔊</button></li>
     <li><button class="nav-icon-btn" id="theme" aria-label="Cambia tema" title="Cambia tema">◐</button></li>
@@ -427,8 +455,8 @@ body.party-mode{
       <h1 id="name" data-text="Francy" title="Cliccami!">Francy</h1>
       <p class="lead">Ma soprattutto disoccupato.</p>
       <div class="cta">
-        <a class="btn main" href="#giochi" id="btnPlayMain">🎮 Rovinati l'esistenza giocando</a>
-        <a class="btn ghost btn-runaway" id="btnRunaway" href="#contatti">Non scrivermi!</a>
+        <a class="btn main" href="#progetti">Progetti Scadenti</a>
+        <a class="btn ghost" href="#giochi" id="btnPlayMain">🎮 Rovinati l'esistenza giocando</a>
       </div>
     </div>
     <div class="cue" aria-hidden="true"></div>
@@ -466,6 +494,70 @@ body.party-mode{
         <li class="reveal" data-xp="45" title="+45 XP">Qualcosa</li>
         <li class="reveal" data-xp="100" title="+100 XP" style="border-color:var(--accent);color:var(--ink)">ESOTICISSIMO 🌟</li>
       </ul>
+    </div>
+  </div>
+</div></section>
+
+<section id="progetti"><div class="wrap">
+  <h2 class="reveal">Progetti Scadenti</h2>
+  <p class="sec-intro reveal">Una curata selezione di cose che non ho mai fatto in vita mia.</p>
+  
+  <div class="projects-channels reveal">
+    <a href="https://youtube.com/@FrancyzYT" target="_blank" rel="noopener noreferrer" class="btn-channel btn-youtube" title="Visita il canale YouTube">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+      </svg>
+      <span>YouTube</span>
+    </a>
+    <a href="https://twitch.tv/francyz_tv" target="_blank" rel="noopener noreferrer" class="btn-channel btn-twitch" title="Seguimi su Twitch">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+      </svg>
+      <span>Twitch</span>
+    </a>
+  </div>
+
+  <div id="githubProjects">
+    <div class="proj reveal" id="proj1">
+      <div>
+        <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.4rem">
+          <h3>Niente</h3>
+          <span class="proj-tag">0 Bug</span>
+        </div>
+        <p>Il progetto più stabile mai concepito non potendo essere instabile.</p>
+        <div class="proj-interactive">
+          <button class="btn-micro btn-test-proj" data-proj="niente">▶ Simula Esecuzione</button>
+          <span class="proj-feedback" style="font-size:.85rem;color:var(--accent)"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="proj reveal" id="proj2">
+      <div>
+        <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.4rem">
+          <h3>Boh</h3>
+          <span class="proj-tag">Deficienza Artificiale</span>
+        </div>
+        <p>Un'avanzata intelligienza artificiale che risponderà a tutto quello che dici alzando le spalle.</p>
+        <div class="proj-interactive">
+          <button class="btn-micro btn-test-proj" data-proj="boh">▶ Interroga Boh </button>
+          <span class="proj-feedback" style="font-size:.85rem;color:var(--accent)"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="proj reveal" id="proj3">
+      <div>
+        <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.4rem">
+          <h3>Forse</h3>
+          <span class="proj-tag">Calcolo Improbabile</span>
+        </div>
+        <p>Un'applicazione che funziona solamente quando vuole.</p>
+        <div class="proj-interactive">
+          <button class="btn-micro btn-test-proj" data-proj="forse">▶ Tenta la Sfortuna</button>
+          <span class="proj-feedback" style="font-size:.85rem;color:var(--accent)"></span>
+        </div>
+      </div>
     </div>
   </div>
 </div></section>
@@ -528,61 +620,15 @@ body.party-mode{
   </div>
 </div></section>
 
-<section id="progetti"><div class="wrap">
-  <h2 class="reveal">Non progetti</h2>
-  <p class="sec-intro reveal">Una curata selezione di cose che non ho mai fatto in vita mia.</p>
-  
-  <div class="proj reveal" id="proj1">
-    <div>
-      <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.4rem">
-        <h3>Niente</h3>
-        <span class="proj-tag">0 Bug</span>
-      </div>
-      <p>Il progetto più stabile mai concepito non potendo essere instabile.</p>
-      <div class="proj-interactive">
-        <button class="btn-micro btn-test-proj" data-proj="niente">▶ Simula Esecuzione</button>
-        <span class="proj-feedback" style="font-size:.85rem;color:var(--accent)"></span>
-      </div>
-    </div>
-  </div>
-
-  <div class="proj reveal" id="proj2">
-    <div>
-      <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.4rem">
-        <h3>Boh</h3>
-        <span class="proj-tag">Deficienza Artificiale</span>
-      </div>
-      <p>Un'avanzata intelligienza artificiale che risponderà a tutto quello che dici alzando le spalle.</p>
-      <div class="proj-interactive">
-        <button class="btn-micro btn-test-proj" data-proj="boh">▶ Interroga Boh </button>
-        <span class="proj-feedback" style="font-size:.85rem;color:var(--accent)"></span>
-      </div>
-    </div>
-  </div>
-
-  <div class="proj reveal" id="proj3">
-    <div>
-      <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.4rem">
-        <h3>Forse</h3>
-        <span class="proj-tag">Calcolo Improbabile</span>
-      </div>
-      <p>Un'applicazione che funziona solamente quando vuole.</p>
-      <div class="proj-interactive">
-        <button class="btn-micro btn-test-proj" data-proj="forse">▶ Tenta la Sfortuna</button>
-        <span class="proj-feedback" style="font-size:.85rem;color:var(--accent)"></span>
-      </div>
-    </div>
-  </div>
-</div></section>
-
 <section class="contact" id="contatti"><div class="wrap">
   <h2 class="reveal">Non lavoriamo insieme!</h2>
   <p class="sec-intro reveal">Se proprio devi mandare un messaggio, sappi che la risposta non la vedrai mai.</p>
-  <a class="mail reveal" id="mailLink" href="mailto:francymaesotico@gmail.com" title="Clicca per copiare l'email!">francymaesotico@gmail.com</a>
+  <div style="margin: 1.5rem 0; min-height: 52px; display: flex; align-items: center;">
+    <a class="btn ghost btn-runaway" id="btnRunaway" href="#contatti">Non scrivermi!</a>
+    <a class="mail reveal" id="mailLink" href="mailto:francymaesotico@gmail.com" title="Clicca per copiare l'email!" style="display:none;">francymaesotico@gmail.com</a>
+  </div>
   <div class="social reveal">
-    <a href="#contatti" class="social-link" data-msg="📺 Canale con 0 video ma credo in me stesso">YouTube</a>
-    <a href="#contatti" class="social-link" data-msg="💻 Faccio esperimenti tipo questo (raramente)">GitHub</a>
-    <a href="#contatti" class="social-link" data-msg="🎮 Live di un disoccupato per eccellenza">Twitch</a>
+    <a href="#contatti" class="social-link" id="githubSocialLink" data-msg="💻 Faccio esperimenti tipo questo (raramente)">GitHub</a>
   </div>
 </div></section>
 </main>
@@ -824,12 +870,22 @@ body.party-mode{
 
   btnRunaway.addEventListener('mouseenter', dodge);
   btnRunaway.addEventListener('click', function(e){
+    e.preventDefault();
     if(runawayCount < 4){
-      e.preventDefault();
       dodge(e);
     } else {
       showToast('Qui mi puoi (sfortunatamente) scrivere...');
       soundPop();
+      btnRunaway.style.display = 'none';
+      var mLink = document.getElementById('mailLink');
+      if(mLink){
+        mLink.style.display = 'inline-block';
+        mLink.classList.add('in');
+        mLink.style.opacity = '1';
+        mLink.style.animation = 'toastIn .5s cubic-bezier(.34,1.56,.64,1) forwards';
+        var rect = mLink.getBoundingClientRect();
+        spawnBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 25, ['✉️', '🎉', '✨', '💖']);
+      }
     }
   });
 
