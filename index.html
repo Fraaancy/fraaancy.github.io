@@ -416,6 +416,44 @@ body.party-mode{
   .js .reveal{opacity:1;transform:none}
   .btn-runaway{transform:none!important}
 }
+
+/* ---------- REPOSITORY GITHUB (si aggiornano da soli) ---------- */
+.repo-head{display:flex;align-items:center;gap:.6rem;margin:0 0 1rem;color:var(--mute);font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.repo-head svg{color:var(--ink);flex-shrink:0}
+.repo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.1rem;margin:0 0 3rem}
+.repo-card{
+  position:relative;overflow:hidden;display:flex;flex-direction:column;gap:.65rem;
+  padding:1.3rem 1.4rem;border-radius:18px;text-decoration:none;color:inherit;
+  background:var(--card-bg,var(--bg2));border:1px solid var(--line);
+  opacity:0;animation:repoIn .6s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--i,0) * 70ms);
+  transition:border-color .3s,transform .3s,box-shadow .3s;
+}
+.repo-card:hover{
+  border-color:var(--accent);transform:translateY(-3px);
+  box-shadow:0 12px 35px -10px color-mix(in srgb,var(--glow) 35%,transparent);
+}
+@keyframes repoIn{from{opacity:0;translate:0 18px}to{opacity:1;translate:0 0}}
+.repo-top{display:flex;align-items:baseline;justify-content:space-between;gap:.8rem}
+.repo-name{font:800 1.25rem/1.2 var(--display);letter-spacing:-.02em;margin:0;word-break:break-word;transition:color .25s}
+.repo-card:hover .repo-name{color:var(--accent)}
+.repo-arrow{color:var(--mute);transition:transform .3s,color .3s;flex-shrink:0}
+.repo-card:hover .repo-arrow{color:var(--accent);transform:translate(3px,-3px)}
+.repo-desc{
+  margin:0;color:var(--mute);font-size:.93rem;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.repo-meta{margin-top:auto;padding-top:.4rem;display:flex;flex-wrap:wrap;gap:.35rem 1rem;font-size:.82rem;color:var(--mute)}
+.repo-meta span{display:inline-flex;align-items:center;gap:.4rem}
+.repo-dot{width:10px;height:10px;border-radius:50%;background:var(--mute);display:inline-block}
+.repo-card.sk{animation:none;opacity:1;pointer-events:none}
+.repo-card.sk i{display:block;height:.85rem;border-radius:6px;background:linear-gradient(90deg,var(--line),color-mix(in srgb,var(--line) 40%,transparent),var(--line));background-size:200% 100%;animation:repoShimmer 1.3s linear infinite}
+.repo-card.sk i:nth-child(1){width:55%;height:1.2rem}
+.repo-card.sk i:nth-child(2){width:95%}
+.repo-card.sk i:nth-child(3){width:70%}
+@keyframes repoShimmer{to{background-position:-200% 0}}
+.repo-msg{grid-column:1/-1;color:var(--mute);font-size:.95rem;margin:0}
+.repo-msg a{color:var(--accent)}
+@media(prefers-reduced-motion:reduce){.repo-card{opacity:1}}
 </style>
 </head>
 <body>
@@ -516,6 +554,12 @@ body.party-mode{
       <span>Twitch</span>
     </a>
   </div>
+
+  <div class="repo-head reveal">
+    <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    <span>Dal mio GitHub</span>
+  </div>
+  <div class="repo-grid" id="repoGrid" aria-live="polite"></div>
 
   <div id="githubProjects">
     <div class="proj reveal" id="proj1">
@@ -626,9 +670,6 @@ body.party-mode{
   <div style="margin: 1.5rem 0; min-height: 52px; display: flex; align-items: center;">
     <a class="btn ghost btn-runaway" id="btnRunaway" href="#contatti">Non scrivermi!</a>
     <a class="mail reveal" id="mailLink" href="mailto:francymaesotico@gmail.com" title="Clicca per copiare l'email!" style="display:none;">francymaesotico@gmail.com</a>
-  </div>
-  <div class="social reveal">
-    <a href="#contatti" class="social-link" id="githubSocialLink" data-msg="💻 Faccio esperimenti tipo questo (raramente)">GitHub</a>
   </div>
 </div></section>
 </main>
@@ -1435,6 +1476,155 @@ body.party-mode{
   measure();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
   window.addEventListener('load', measure);
+})();
+</script>
+
+<script>
+/* Repository GitHub: letti in automatico dall'API pubblica, niente da aggiornare a mano. */
+(function(){
+  var USER = 'Fraaancy';
+  var grid = document.getElementById('repoGrid');
+  if (!grid) return;
+
+  var CACHE_KEY = 'repos:' + USER, TTL = 10 * 60 * 1000;
+  var LANG = {
+    'Python':'#3572A5','JavaScript':'#f1e05a','TypeScript':'#3178c6','HTML':'#e34c26','CSS':'#563d7c',
+    'C':'#808080','C++':'#f34b7d','C#':'#178600','Java':'#b07219','Go':'#00ADD8','Rust':'#dea584',
+    'Shell':'#89e051','PowerShell':'#5391fe','Batchfile':'#C1F12E','Lua':'#6a7bff','PHP':'#4F5D95',
+    'Ruby':'#701516','Kotlin':'#A97BFF','Swift':'#F05138','Dart':'#00B4AB','Jupyter Notebook':'#DA5B0B'
+  };
+
+  function el(tag, cls, text){
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function ago(iso){
+    var d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+    if (d < 1)  return 'aggiornato oggi';
+    if (d === 1) return 'aggiornato ieri';
+    if (d < 30) return 'aggiornato ' + d + ' giorni fa';
+    var m = Math.floor(d / 30);
+    if (m < 12) return 'aggiornato ' + m + (m === 1 ? ' mese fa' : ' mesi fa');
+    var y = Math.floor(d / 365);
+    return 'aggiornato ' + y + (y === 1 ? ' anno fa' : ' anni fa');
+  }
+
+  function skeleton(){
+    grid.textContent = '';
+    for (var i = 0; i < 3; i++){
+      var c = el('div', 'repo-card sk');
+      c.appendChild(el('i')); c.appendChild(el('i')); c.appendChild(el('i'));
+      grid.appendChild(c);
+    }
+  }
+
+  function message(text, withLink){
+    grid.textContent = '';
+    var p = el('p', 'repo-msg', text + ' ');
+    if (withLink){
+      var a = el('a', null, 'Vai direttamente su GitHub');
+      a.href = 'https://github.com/' + USER; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      p.appendChild(a);
+    }
+    grid.appendChild(p);
+  }
+
+  function card(r, i){
+    var a = el('a', 'repo-card');
+    a.href = r.html_url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    a.style.setProperty('--i', i);
+
+    var top = el('div', 'repo-top');
+    top.appendChild(el('h3', 'repo-name', r.name));
+    top.appendChild(el('span', 'repo-arrow', '↗'));
+    a.appendChild(top);
+
+    a.appendChild(el('p', 'repo-desc', r.description || 'Nessuna descrizione.'));
+
+    var meta = el('div', 'repo-meta');
+    if (r.language){
+      var l = el('span');
+      var dot = el('i', 'repo-dot'); dot.style.background = LANG[r.language] || 'var(--mute)';
+      l.appendChild(dot); l.appendChild(document.createTextNode(r.language));
+      meta.appendChild(l);
+    }
+    if (r.stargazers_count > 0) meta.appendChild(el('span', null, '★ ' + r.stargazers_count));
+    if (r.forks_count > 0)      meta.appendChild(el('span', null, '⑂ ' + r.forks_count));
+    meta.appendChild(el('span', null, ago(r.pushed_at || r.updated_at)));
+    a.appendChild(meta);
+    return a;
+  }
+
+  function render(repos){
+    var own = repos.filter(function(r){
+      var n = r.name.toLowerCase();
+      return !r.fork && n !== (USER + '.github.io').toLowerCase() && n !== USER.toLowerCase();
+    }).sort(function(a, b){
+      return new Date(b.pushed_at || b.updated_at) - new Date(a.pushed_at || a.updated_at);
+    });
+    if (!own.length){ message('Ancora nessun repository pubblico.', true); return; }
+    grid.textContent = '';
+    own.forEach(function(r, i){ grid.appendChild(card(r, i)); });
+  }
+
+  function readCache(){
+    try { return JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); } catch(e){ return null; }
+  }
+  function writeCache(d){
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({t: Date.now(), d: d})); } catch(e){}
+  }
+  function getJSON(url){
+    return fetch(url, {headers: {'Accept': 'application/vnd.github+json'}}).then(function(res){
+      if (!res.ok){ var e = new Error('HTTP ' + res.status); e.status = res.status; throw e; }
+      return res.json();
+    });
+  }
+
+  var cached = readCache();
+  if (cached && Date.now() - cached.t < TTL){ render(cached.d); return; }
+
+  skeleton();
+  var firstErr = null;
+  // 1) repos.json: file dello stesso sito, aggiornato in automatico da GitHub Actions
+  //    (niente richieste esterne, quindi nessun blocco o limite)
+  function loadLocal(){
+    return fetch('repos.json', {cache: 'no-cache'}).then(function(res){
+      if (!res.ok) throw new Error('repos.json ' + res.status);
+      return res.json();
+    }).then(function(d){
+      if (!Array.isArray(d) || !d.length) throw new Error('repos.json vuoto');
+      return d;
+    });
+  }
+
+  // 2) altrimenti l'API pubblica di GitHub, 3) altrimenti la ricerca
+  loadLocal()
+    .catch(function(){
+      return getJSON('https://api.github.com/users/' + USER + '/repos?per_page=100&sort=pushed&type=owner');
+    })
+    .catch(function(err){
+      // Es. limite di richieste raggiunto: riprovo con la ricerca (limite separato)
+      firstErr = err;
+      return getJSON('https://api.github.com/search/repositories?q=user:' + USER + '&sort=updated&per_page=100')
+        .then(function(d){
+          if (!d.items || !d.items.length) throw err;
+          return d.items;
+        });
+    })
+    .then(function(data){ writeCache(data); render(data); })
+    .catch(function(err){
+      err = firstErr || err;
+      console.warn('[repo GitHub]', err);
+      if (cached && cached.d){ render(cached.d); return; }   // meglio dati un po' vecchi che niente
+      var st = err && err.status;
+      var text = (st === 403 || st === 429) ? 'GitHub sta limitando le richieste da questa connessione, riprova tra un po\u2019.'
+               : st === 404 ? 'Utente GitHub non trovato.'
+               : 'Non riesco a contattare GitHub in questo momento (blocco di rete o estensione?).';
+      message(text + (st ? ' (errore ' + st + ')' : ''), true);
+    });
 })();
 </script>
 </body>
