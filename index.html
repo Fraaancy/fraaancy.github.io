@@ -57,6 +57,7 @@ nav{
   border-bottom:1px solid transparent;transition:border-color .3s;
   opacity:var(--na,1);
 }
+html.fx-busy nav{backdrop-filter:none;-webkit-backdrop-filter:none;background:color-mix(in srgb,var(--bg) 94%,transparent)}
 nav.off{pointer-events:none}
 nav.off:focus-within{opacity:1;pointer-events:auto}
 nav.scrolled{border-bottom-color:var(--line)}
@@ -184,7 +185,7 @@ h2{font:800 clamp(2rem,5vw,3.25rem)/1.05 var(--display);letter-spacing:-.03em;ma
 
 /* Box Gamification XP */
 .xp-box{
-  background:var(--card-bg);backdrop-filter:blur(10px);
+  background:color-mix(in srgb,var(--bg2) 74%,var(--bg));
   border:1px solid var(--line);border-radius:18px;padding:1.4rem;
   margin-bottom:1.5rem;box-shadow:0 8px 30px rgba(0,0,0,0.15);
 }
@@ -223,7 +224,7 @@ h2{font:800 clamp(2rem,5vw,3.25rem)/1.05 var(--display);letter-spacing:-.03em;ma
   display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;
 }
 .game-card{
-  background:var(--card-bg);backdrop-filter:blur(10px);
+  background:color-mix(in srgb,var(--bg2) 74%,var(--bg));
   border:1px solid var(--line);border-radius:20px;padding:1.8rem;
   display:flex;flex-direction:column;justify-content:space-between;
   position:relative;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;
@@ -351,7 +352,7 @@ footer{padding:2rem 0;color:var(--mute);font-size:.9rem}
   z-index:10001;display:flex;flex-direction:column;gap:8px;pointer-events:none;
 }
 .toast{
-  background:var(--card-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  background:color-mix(in srgb,var(--bg2) 94%,transparent);
   color:var(--ink);border:1px solid var(--accent);padding:.8rem 1.4rem;
   border-radius:999px;box-shadow:0 10px 35px rgba(0,0,0,0.3);
   font-size:.92rem;font-weight:500;display:flex;align-items:center;gap:.6rem;
@@ -364,7 +365,7 @@ footer{padding:2rem 0;color:var(--mute);font-size:.9rem}
 /* ---------- BANNER TARALLO (COOKIE IRONICO) ---------- */
 .tarallo-banner{
   position:fixed;bottom:20px;right:20px;z-index:999;
-  background:var(--card-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  background:color-mix(in srgb,var(--bg2) 94%,transparent);
   border:1px solid var(--line);border-radius:18px;padding:1.1rem 1.3rem;
   max-width:320px;box-shadow:0 12px 35px rgba(0,0,0,0.35);
   font-size:.88rem;display:flex;flex-direction:column;gap:.7rem;
@@ -387,7 +388,7 @@ footer{padding:2rem 0;color:var(--mute);font-size:.9rem}
 .tarallo-btn.reject:hover{color:var(--ink);border-color:var(--ink)}
 
 /* Effetto scuotimento schermo (Screen Shake) */
-.shake{animation:screenShake .4s cubic-bezier(.36,.07,.19,.97) both}
+body.shake>header,body.shake>main,body.shake>footer{animation:screenShake .4s cubic-bezier(.36,.07,.19,.97) both}
 @keyframes screenShake{
   10%,90%{transform:translate3d(-2px,0,0)}
   20%,80%{transform:translate3d(3px,0,0)}
@@ -396,13 +397,27 @@ footer{padding:2rem 0;color:var(--mute);font-size:.9rem}
 }
 
 /* Modalità Party Esotico */
-body.party-mode{
+/* Modalità LSD: hue-rotate su TUTTA la pagina (come prima), ma applicato da un velo
+   a schermo intero con backdrop-filter. Il browser filtra solo ciò che si vede nella finestra
+   invece dell'intera pagina alta migliaia di pixel, quindi è molto più fluido, e non sposta
+   gli elementi fissi (barra in alto, toast, particelle). */
+#lsd{display:none;position:fixed;inset:0;z-index:10002;pointer-events:none}
+body.party-mode #lsd{
+  display:block;
+  -webkit-backdrop-filter:hue-rotate(0deg);backdrop-filter:hue-rotate(0deg);
   animation:partyFlash 4s linear infinite alternate;
+  will-change:backdrop-filter;
 }
 @keyframes partyFlash{
-  0%{filter:hue-rotate(0deg)}
-  50%{filter:hue-rotate(180deg)}
-  100%{filter:hue-rotate(360deg)}
+  from{-webkit-backdrop-filter:hue-rotate(0deg);backdrop-filter:hue-rotate(0deg)}
+  to{-webkit-backdrop-filter:hue-rotate(360deg);backdrop-filter:hue-rotate(360deg)}
+}
+/* durante l'effetto niente doppio blur sulla barra in alto */
+body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background:color-mix(in srgb,var(--bg) 94%,transparent)}
+/* browser senza backdrop-filter: vecchio metodo */
+@supports not ((backdrop-filter:hue-rotate(1deg)) or (-webkit-backdrop-filter:hue-rotate(1deg))){
+  body.party-mode{animation:partyFlashBody 4s linear infinite alternate}
+  @keyframes partyFlashBody{from{filter:hue-rotate(0deg)}to{filter:hue-rotate(360deg)}}
 }
 
 /* ---------- REVEAL ALLO SCROLL ---------- */
@@ -460,6 +475,7 @@ body.party-mode{
 
 <canvas id="fx-canvas"></canvas>
 <div id="toast-container"></div>
+<div id="lsd" aria-hidden="true"></div>
 
 <!-- Cookie Banner Ironico -->
 <div class="tarallo-banner" id="taralloBanner">
@@ -480,7 +496,6 @@ body.party-mode{
     <li class="hide"><a class="link" href="#progetti">Progetti Scadenti</a></li>
     <li class="hide"><a class="link" href="#giochi">Sala Giochi</a></li>
     <li><a class="link" href="#contatti">Forse</a></li>
-    <li><button class="nav-icon-btn" id="soundToggle" aria-label="Attiva o disattiva effetti sonori" title="Attiva/disattiva suoni">🔊</button></li>
     <li><button class="nav-icon-btn" id="theme" aria-label="Cambia tema" title="Cambia tema">◐</button></li>
   </ul>
 </div></nav>
@@ -697,7 +712,6 @@ body.party-mode{
      SINTETIZZATORE AUDIO WEB (Zero dipendenze esterne!)
      ========================================================================== */
   var audioCtx = null;
-  var soundEnabled = true;
 
   function initAudio(){
     if(!audioCtx){
@@ -709,7 +723,6 @@ body.party-mode{
   }
 
   function playTone(freq, type, duration, vol){
-    if(!soundEnabled) return;
     try{
       initAudio();
       var osc = audioCtx.createOscillator();
@@ -731,7 +744,6 @@ body.party-mode{
   }
 
   function soundBoing(){
-    if(!soundEnabled) return;
     try{
       initAudio();
       var osc = audioCtx.createOscillator();
@@ -755,20 +767,12 @@ body.party-mode{
   }
 
   function soundFanfare(){
-    if(!soundEnabled) return;
     var fan = [261.63, 329.63, 392.00, 523.25];
     fan.forEach(function(f, i){
       setTimeout(function(){ playTone(f, 'triangle', 0.35, 0.18); }, i * 90);
     });
   }
 
-  var soundToggleBtn = document.getElementById('soundToggle');
-  soundToggleBtn.addEventListener('click', function(){
-    soundEnabled = !soundEnabled;
-    soundToggleBtn.textContent = soundEnabled ? '🔊' : '🔇';
-    showToast(soundEnabled ? '🔊 Effetti sonori attivati!' : '🔇 Suoni silenziati');
-    if(soundEnabled) soundPop();
-  });
 
   /* ==========================================================================
      SISTEMA PARTICELLE & CORIANDOLI (CANVAS 2D ULTRA-LEGGERO)
@@ -785,72 +789,107 @@ body.party-mode{
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
+  var MAX_PARTICLES = 240;
+  var spriteCache = {};
+  var lastFrame = 0;
+
+  // Ogni emoji viene disegnata UNA volta su un mini-canvas; poi si copia (molto più veloce di fillText a ogni frame)
+  function getSprite(ch, size){
+    var q = Math.round(size / 4) * 4;
+    var key = ch + '|' + q;
+    var sp = spriteCache[key];
+    if(!sp){
+      var dim = Math.ceil(q * 1.5);
+      sp = document.createElement('canvas');
+      sp.width = sp.height = dim;
+      var c = sp.getContext('2d');
+      c.font = q + 'px serif';
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.fillText(ch, dim / 2, dim / 2);
+      spriteCache[key] = sp;
+    }
+    return sp;
+  }
+
   function spawnBurst(x, y, count, emojis){
     var colors = ['#ffb38a', '#6c4cff', '#a98bff', '#ffd166', '#06d6a0', '#ff3366'];
     var useEmoji = Array.isArray(emojis) && emojis.length > 0;
+    // Se ci sono già tante particelle ne creo meno, e butto le più vecchie oltre il tetto
+    count = Math.min(count, MAX_PARTICLES);
+    if(particles.length > 140) count = Math.ceil(count / 2);
+    var overflow = particles.length + count - MAX_PARTICLES;
+    if(overflow > 0) particles.splice(0, overflow);
+
     for(var i = 0; i < count; i++){
       var angle = Math.random() * Math.PI * 2;
       var speed = Math.random() * 8 + 3;
+      var size = useEmoji ? (Math.random() * 12 + 18) : (Math.random() * 6 + 5);
+      var ch = useEmoji ? emojis[Math.floor(Math.random() * emojis.length)] : null;
       particles.push({
         x: x,
         y: y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed - 3,
-        size: useEmoji ? (Math.random() * 12 + 18) : (Math.random() * 6 + 5),
+        size: size,
         color: colors[Math.floor(Math.random() * colors.length)],
-        emoji: useEmoji ? emojis[Math.floor(Math.random() * emojis.length)] : null,
+        sprite: ch ? getSprite(ch, size) : null,
         rotation: Math.random() * 360,
         rotSpeed: (Math.random() - 0.5) * 12,
-        alpha: 1,
-        life: 1
+        alpha: 1
       });
     }
     if(!isRendering){
       isRendering = true;
+      lastFrame = performance.now();
+      root.classList.add('fx-busy');
       requestAnimationFrame(renderParticles);
     }
   }
 
-  function renderParticles(){
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for(var i = particles.length - 1; i >= 0; i--){
+  function renderParticles(now){
+    var dt = Math.min(2.5, (now - lastFrame) / 16.667 || 1);   // la velocità non dipende dagli fps
+    lastFrame = now;
+    var decay = Math.pow(0.98, dt);
+    var h = canvas.height;
+
+    ctx.clearRect(0, 0, canvas.width, h);
+    var alive = 0;
+    for(var i = 0; i < particles.length; i++){
       var p = particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += 0.28; // gravità
-      p.vx *= 0.98;
-      p.rotation += p.rotSpeed;
-      p.alpha -= 0.016;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += 0.28 * dt;   // gravità
+      p.vx *= decay;
+      p.rotation += p.rotSpeed * dt;
+      p.alpha -= 0.016 * dt;
+      if(p.alpha <= 0 || p.y > h + 50) continue;
+      particles[alive++] = p;
 
-      if(p.alpha <= 0 || p.y > canvas.height + 50){
-        particles.splice(i, 1);
-        continue;
-      }
-
-      ctx.save();
-      ctx.globalAlpha = Math.max(0, p.alpha);
-      ctx.translate(p.x, p.y);
-      ctx.rotate((p.rotation * Math.PI) / 180);
-
-      if(p.emoji){
-        ctx.font = p.size + 'px serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(p.emoji, 0, 0);
+      var rad = p.rotation * Math.PI / 180;
+      var cs = Math.cos(rad), sn = Math.sin(rad);
+      ctx.globalAlpha = p.alpha;
+      ctx.setTransform(cs, sn, -sn, cs, p.x, p.y);
+      if(p.sprite){
+        var d = p.sprite.width;
+        ctx.drawImage(p.sprite, -d / 2, -d / 2);
       } else {
         ctx.fillStyle = p.color;
         ctx.beginPath();
-        ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+        ctx.arc(0, 0, p.size / 2, 0, 6.2832);
         ctx.fill();
       }
-      ctx.restore();
     }
+    particles.length = alive;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1;
 
-    if(particles.length > 0){
+    if(alive > 0){
       requestAnimationFrame(renderParticles);
     } else {
       isRendering = false;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      root.classList.remove('fx-busy');
+      ctx.clearRect(0, 0, canvas.width, h);
     }
   }
 
@@ -863,6 +902,7 @@ body.party-mode{
     var t = document.createElement('div');
     t.className = 'toast';
     t.innerHTML = text;
+    while(toastContainer.children.length >= 3) toastContainer.removeChild(toastContainer.firstChild);
     toastContainer.appendChild(t);
     setTimeout(function(){
       t.style.animation = 'toastOut 0.3s forwards';
@@ -1374,11 +1414,18 @@ body.party-mode{
   }
 
   /* ---- ALONE CHE SEGUE IL MOUSE NELL'HERO ---- */
+  var stageQueued = false, stX = 0, stY = 0;
   stage.addEventListener('pointermove', function(e){
-    var b = stage.getBoundingClientRect();
-    stage.style.setProperty('--x', (e.clientX - b.left) + 'px');
-    stage.style.setProperty('--y', (e.clientY - b.top) + 'px');
-  });
+    stX = e.clientX; stY = e.clientY;
+    if (stageQueued) return;           // al massimo un aggiornamento per frame
+    stageQueued = true;
+    requestAnimationFrame(function(){
+      stageQueued = false;
+      var b = stage.getBoundingClientRect();
+      stage.style.setProperty('--x', (stX - b.left) + 'px');
+      stage.style.setProperty('--y', (stY - b.top) + 'px');
+    });
+  }, {passive:true});
 
   if (reduce) {
     window.addEventListener('scroll', function(){
@@ -1411,7 +1458,7 @@ body.party-mode{
     dx = vw / 2 - cx;
     dy = vh / 2 - cy;
     range = Math.max(1, intro.offsetHeight - stage.offsetHeight);
-    update();
+    update(true);
   }
 
   function setGlow(px, py){
@@ -1421,9 +1468,13 @@ body.party-mode{
     h1.style.setProperty('--hy', ((py - r.top)  / sc) + 'px');
   }
 
-  function update(){
+  var lastP = -1, driftOn = false, ticking = false, glowQueued = false;
+
+  function update(force){
     var y = window.scrollY - intro.offsetTop;
     var p = clamp(y / range);
+    if (!force && p === lastP) return;   // niente è cambiato: non ricalcolo nulla (fuori dall'intro succede quasi sempre)
+    lastP = p;
     var e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;   // easeInOutCubic
     var s = s0 + (1 - s0) * e;
 
@@ -1451,27 +1502,39 @@ body.party-mode{
       }
     }
 
-    if (usePointer) setGlow(lastX, lastY);
+    if (usePointer && p < .7) setGlow(lastX, lastY);
+    if (p < .7 && !usePointer) startDrift();
   }
 
-  window.addEventListener('scroll', function(){ requestAnimationFrame(update); }, {passive:true});
+  window.addEventListener('scroll', function(){
+    if (ticking) return;               // al massimo un aggiornamento per frame
+    ticking = true;
+    requestAnimationFrame(function(){ ticking = false; update(); });
+  }, {passive:true});
   window.addEventListener('resize', measure);
 
   window.addEventListener('pointermove', function(e){
     if (e.pointerType === 'touch') return;
     usePointer = true; lastX = e.clientX; lastY = e.clientY;
-    setGlow(lastX, lastY);
+    if (glowQueued || lastP >= .7) return;   // a intro finita l'alone nelle lettere non si vede più
+    glowQueued = true;
+    requestAnimationFrame(function(){ glowQueued = false; setGlow(lastX, lastY); });
   }, {passive:true});
 
+  // Senza mouse (touch) l'alone vaga da solo: gira solo mentre l'intro si vede, a ~30fps
+  var lastDrift = 0;
   function drift(t){
-    if (!usePointer && window.scrollY < range + vh) {
-      var r = h1.getBoundingClientRect();
-      setGlow(r.left + r.width  * (.5 + .38 * Math.sin(t / 1900)),
-              r.top  + r.height * (.5 + .30 * Math.sin(t / 1300 + 1)));
-    }
+    if (usePointer || lastP >= .7){ driftOn = false; return; }
     requestAnimationFrame(drift);
+    if (document.hidden || t - lastDrift < 32) return;
+    lastDrift = t;
+    var r = h1.getBoundingClientRect();
+    setGlow(r.left + r.width  * (.5 + .38 * Math.sin(t / 1900)),
+            r.top  + r.height * (.5 + .30 * Math.sin(t / 1300 + 1)));
   }
-  requestAnimationFrame(drift);
+  function startDrift(){
+    if (!driftOn){ driftOn = true; requestAnimationFrame(drift); }
+  }
 
   measure();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
