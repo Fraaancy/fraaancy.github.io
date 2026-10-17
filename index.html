@@ -3,7 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>try{var _t=localStorage.getItem('fra:theme');if(_t)document.documentElement.dataset.theme=_t}catch(e){}</script>
 <title>Francy</title>
+<meta name="description" content="Una curata selezione di cose che non ho mai fatto in vita mia. Ma soprattutto disoccupato.">
+<meta name="theme-color" content="#17132b">
+<link rel="canonical" href="https://fraaancy.github.io/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%A9%3C/text%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Francy">
+<meta property="og:description" content="Una curata selezione di cose che non ho mai fatto in vita mia. Ma soprattutto disoccupato.">
+<meta property="og:url" content="https://fraaancy.github.io/">
+<meta property="og:locale" content="it_IT">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -469,12 +480,33 @@ body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background
 .repo-msg{grid-column:1/-1;color:var(--mute);font-size:.95rem;margin:0}
 .repo-msg a{color:var(--accent)}
 @media(prefers-reduced-motion:reduce){.repo-card{opacity:1}}
+
+/* ---------- OBIETTIVI ---------- */
+.ach-box{
+  background:color-mix(in srgb,var(--bg2) 74%,var(--bg));
+  border:1px solid var(--line);border-radius:18px;padding:1.4rem;
+  margin-bottom:1.5rem;box-shadow:0 8px 30px rgba(0,0,0,0.15);
+}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:.55rem}
+.ach-badge{
+  aspect-ratio:1;border-radius:14px;border:1px solid var(--line);background:var(--bg2);
+  font-size:1.35rem;line-height:1;display:grid;place-items:center;cursor:pointer;padding:0;color:inherit;
+  transition:transform .2s,border-color .2s,background .2s;
+}
+.ach-badge .ach-ico{filter:grayscale(1);opacity:.4;transition:filter .3s,opacity .3s}
+.ach-badge.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--bg2))}
+.ach-badge.on .ach-ico{filter:none;opacity:1}
+.ach-badge:hover,.ach-badge:focus-visible{transform:translateY(-2px);border-color:var(--accent)}
+.ach-badge.pop{animation:achPop .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes achPop{0%{transform:scale(.6)}60%{transform:scale(1.28)}100%{transform:scale(1)}}
+.ach-detail{margin-top:.9rem;min-height:2.9em;font-size:.88rem;color:var(--mute);line-height:1.45}
+.ach-detail strong{color:var(--ink)}
 </style>
 </head>
 <body>
 
 <canvas id="fx-canvas"></canvas>
-<div id="toast-container"></div>
+<div id="toast-container" role="status" aria-live="polite"></div>
 <div id="lsd" aria-hidden="true"></div>
 
 <!-- Cookie Banner Ironico -->
@@ -536,8 +568,16 @@ body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background
         <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
         <div class="xp-sub">
           <span>💡 Clicca su questi orribili tasti per diventare più disoccupato.</span>
-          <span id="xpNext">Prossimo rank a 100 XP</span>
+          <span id="xpNext">Prossimo rango a 300 XP</span>
         </div>
+      </div>
+      <div class="ach-box reveal">
+        <div class="xp-top">
+          <span class="xp-title">🎖️ Obiettivi</span>
+          <span class="xp-score"><span id="achCount">0</span>/<span id="achTotal">0</span></span>
+        </div>
+        <div class="ach-grid" id="achGrid" role="group" aria-label="Obiettivi"></div>
+        <div class="ach-detail" id="achDetail" aria-live="polite">Passa il mouse (o tocca) un badge per i dettagli.</div>
       </div>
       <ul class="skills" id="skillsList">
         <li class="reveal" data-xp="15" title="+15 XP">Ignorante</li>
@@ -813,6 +853,7 @@ body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background
   }
 
   function spawnBurst(x, y, count, emojis){
+    if(reduce) return;   // chi ha chiesto meno animazioni non vede esplosioni
     var colors = ['#ffb38a', '#6c4cff', '#a98bff', '#ffd166', '#06d6a0', '#ff3366'];
     var useEmoji = Array.isArray(emojis) && emojis.length > 0;
     // Se ci sono già tante particelle ne creo meno, e butto le più vecchie oltre il tetto
@@ -943,8 +984,7 @@ body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background
       setTimeout(function(){
         btnRunaway.style.transform = 'none';
         btnRunaway.textContent = 'Ok ok, mi arrendo, cliccami. 😭';
-        showToast('🏆 Achievement sbloccato: "Riflessi da Disoccupato"!');
-        soundFanfare();
+        unlock('runaway');
       }, 700);
     }
   }
@@ -1033,14 +1073,17 @@ body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background
 
   var ranks = [
     { threshold: 0, title: 'Disoccupato Principiante' },
-    { threshold: 75, title: 'Apprendista del Boss ' },
-    { threshold: 180, title: 'Maestro di Disoccupaggine' },
-    { threshold: 320, title: 'Quasi Boss' },
-    { threshold: 500, title: 'UNEMPLOYED FINAL BOSS 👑' }
+    { threshold: 300, title: 'Apprendista del Boss ' },
+    { threshold: 900, title: 'Maestro di Disoccupaggine' },
+    { threshold: 2000, title: 'Quasi Boss' },
+    { threshold: 4000, title: 'UNEMPLOYED FINAL BOSS 👑' }
   ];
 
+  var restoring = false;
+  var achReady = false;
   function addXp(amount, clientX, clientY){
     currentXp += amount;
+    try{ localStorage.setItem('fra:xp', String(currentXp)); }catch(e){}
     xpCountEl.textContent = currentXp;
 
     // Aggiorna grado
@@ -1055,10 +1098,14 @@ body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background
     
     if(xpRankEl.textContent !== currentRank){
       xpRankEl.textContent = currentRank;
-      showToast('🎉 PROMOZIONE! Nuovo rango: ' + currentRank, 3200);
-      soundFanfare();
-      spawnBurst(clientX || window.innerWidth / 2, clientY || window.innerHeight / 2, 25, ['🏆', '✨', '👑']);
+      if(!restoring){   // al ripristino dei progressi niente festeggiamenti
+        showToast('🎉 PROMOZIONE! Nuovo rango: ' + currentRank, 3200);
+        soundFanfare();
+        spawnBurst(clientX || window.innerWidth / 2, clientY || window.innerHeight / 2, 25, ['🏆', '✨', '👑']);
+      }
     }
+
+    if(achReady && currentRank === ranks[ranks.length - 1].title) unlock('boss');
 
     if(nextThreshold){
       var prev = 0;
@@ -1097,6 +1144,25 @@ body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background
     });
   });
 
+  // Ripristina i progressi dell'ultima visita
+  try{
+    var savedXp = parseInt(localStorage.getItem('fra:xp') || '0', 10);
+    if(savedXp > 0){ restoring = true; addXp(savedXp); restoring = false; }
+  }catch(e){ restoring = false; }
+
+  // Accessibilità: gli elementi cliccabili che non sono pulsanti si usano anche da tastiera
+  [].slice.call(document.querySelectorAll('#skillsList li, #badgeExotic')).forEach(function(el){
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('role', 'button');
+    el.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        var b = el.getBoundingClientRect();
+        el.dispatchEvent(new MouseEvent('click', {bubbles:true, clientX:b.left + b.width / 2, clientY:b.top + b.height / 2}));
+      }
+    });
+  });
+
   /* ==========================================================================
      SALA GIOCHI: 1. IL PULSANTE PROIBITO
      ========================================================================== */
@@ -1129,6 +1195,7 @@ body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background
       spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 50, ['🪩', '🎉', '🌴', '🍍', '🕶️', '⚡']);
       showToast('LSD SIMULATOR 🌈');
       addXp(80, e.clientX, e.clientY);
+      unlock('forbidden');
     }
   });
 
@@ -1312,8 +1379,11 @@ body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background
     soundPop();
     var email = 'francymaesotico@gmail.com';
     if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(email);
-      showToast('📩 Email (' + email + ') copiata! Ora puoi mandarmi dei meme.');
+      navigator.clipboard.writeText(email).then(function(){
+        showToast('📩 Email (' + email + ') copiata! Ora puoi mandarmi dei meme.');
+      }, function(){
+        showToast('📩 Email: ' + email);
+      });
     } else {
       showToast('📩 Email: ' + email);
     }
@@ -1340,9 +1410,11 @@ body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background
   var btnAcceptTarallo = document.getElementById('btnAcceptTarallo');
   var btnRejectTarallo = document.getElementById('btnRejectTarallo');
   var taralloDismissed = false;
+  try{ if(localStorage.getItem('fra:tarallo')) taralloDismissed = true; }catch(e){}
 
   btnAcceptTarallo.addEventListener('click', function(e){
     taralloDismissed = true;
+    try{ localStorage.setItem('fra:tarallo', '1'); }catch(e){}
     soundPop();
     var b = btnAcceptTarallo.getBoundingClientRect();
     spawnBurst(b.left + b.width / 2, b.top + b.height / 2, 20, ['🥯', '😋', '✨']);
@@ -1354,6 +1426,7 @@ body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background
 
   btnRejectTarallo.addEventListener('click', function(){
     taralloDismissed = true;
+    try{ localStorage.setItem('fra:tarallo', '1'); }catch(e){}
     soundPop();
     taralloBanner.classList.remove('visible');
     setTimeout(function(){ taralloBanner.style.display = 'none'; }, 450);
@@ -1377,12 +1450,173 @@ body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background
         soundFanfare();
         spawnBurst(window.innerWidth / 2, window.innerHeight / 2, 60, ['🕶️', '🌴', '👑', '🎉', '🔥']);
         showToast('🕶️ CODICE SEGRETO ATTIVATO! LIVELLO ESOTICO: 9999!', 4000);
+        unlock('konami');
         addXp(200, window.innerWidth / 2, window.innerHeight / 2);
       }
     } else {
       konamiIdx = 0;
     }
   });
+
+  /* ==========================================================================
+     OBIETTIVI (salvati nel browser, tornano quando ritorni sul sito)
+     ========================================================================== */
+  var ACH = [
+    { id:'skill1',    icon:'👆', title:'Primo Click',               desc:'Clicca una delle skill.',                              xp:20 },
+    { id:'skillsAll', icon:'🧺', title:'Collezionista di Difetti',  desc:'Clicca tutte le skill.',                               xp:60 },
+    { id:'runaway',   icon:'🏃', title:'Riflessi da Disoccupato',   desc:'Fai arrendere il pulsante "Non scrivermi!".',          xp:60 },
+    { id:'mail',      icon:'✉️', title:'Posta Esotica',             desc:'Clicca l\'email dopo averla fatta apparire.',          xp:40 },
+    { id:'forbidden', icon:'☢️', title:'Pulsante Proibito',         desc:'Premi il pulsante proibito fino alla fine.',           xp:80 },
+    { id:'oracle',    icon:'🔮', title:'Scusa Pronta',              desc:'Copia una scusa dall\'Oracolo.',                       xp:30 },
+    { id:'projects',  icon:'🧪', title:'Beta Tester',               desc:'Prova tutti e tre i progetti.',                        xp:50 },
+    { id:'who',       icon:'🎭', title:'Crisi d\'Identità',         desc:'Premi "Chi altro non sono?" 5 volte.',                 xp:40 },
+    { id:'tarallo',   icon:'🥯', title:'Questione di Taralli',      desc:'Rispondi al banner dei taralli.',                      xp:30 },
+    { id:'theme',     icon:'🌗', title:'Notte e Giorno',            desc:'Cambia il tema.',                                      xp:20 },
+    { id:'bottom',    icon:'⬇️', title:'Fino in Fondo',             desc:'Scorri fino al fondo della pagina.',                   xp:30 },
+    { id:'channels',  icon:'📺', title:'Stalker',                   desc:'Visita il canale YouTube o Twitch.',                   xp:40 },
+    { id:'repo',      icon:'💻', title:'Curioso del Codice',        desc:'Apri uno dei repository dal mio GitHub.',              xp:40 },
+    { id:'esotico',   icon:'🌟', title:'Sovraccarico Esotico',      desc:'Hai cliccato il badge ESOTICO.',                       xp:50, secret:true },
+    { id:'francy',    icon:'🦩', title:'Narciso',                   desc:'Hai cliccato il mio nome gigante.',                    xp:40, secret:true },
+    { id:'logo',      icon:'🌴', title:'Logo-dipendente',           desc:'Hai cliccato il logo in alto.',                        xp:40, secret:true },
+    { id:'konami',    icon:'🕹️', title:'Nostalgico',                desc:'Hai inserito il codice segreto.',                      xp:100, secret:true },
+    { id:'lost',      icon:'🧭', title:'Perso nel Nulla',           desc:'Hai trovato la pagina 404.',                           xp:60,  secret:true, hint:'a volte basta sbagliare strada.' },
+    { id:'boss',      icon:'👑', title:'UNEMPLOYED FINAL BOSS',     desc:'Raggiungi il rango massimo.',                          xp:0 },
+    { id:'platinum',  icon:'💎', title:'Disoccupato Completo',      desc:'Sblocca tutti gli altri obiettivi.',                   xp:300 }
+  ];
+  var achById = {};
+  ACH.forEach(function(a){ achById[a.id] = a; });
+
+  var achState = {};
+  try{ achState = JSON.parse(localStorage.getItem('fra:ach') || '{}') || {}; }catch(e){ achState = {}; }
+  function achSave(){ try{ localStorage.setItem('fra:ach', JSON.stringify(achState)); }catch(e){} }
+
+  var achGrid = document.getElementById('achGrid');
+  var achCountEl = document.getElementById('achCount');
+  var achDetail = document.getElementById('achDetail');
+  document.getElementById('achTotal').textContent = ACH.length;
+
+  function achDetailText(def){
+    var on = !!achState[def.id];
+    if(on) return '🏆 <strong>' + def.title + '</strong> — ' + def.desc + (def.xp ? ' (+' + def.xp + ' XP)' : '');
+    if(def.secret) return '🔒 <strong>???</strong> — Easter egg segreto: ' + (def.hint || 'continua a esplorare il sito.');
+    return '🔒 <strong>' + def.title + '</strong> — ' + def.desc + (def.xp ? ' (+' + def.xp + ' XP)' : '');
+  }
+
+  function paintBadge(btn, def){
+    var on = !!achState[def.id];
+    btn.classList.toggle('on', on);
+    btn.firstChild.textContent = (!on && def.secret) ? '❓' : def.icon;
+    btn.setAttribute('aria-label', (on || !def.secret ? def.title : 'Obiettivo segreto') + ': ' + (on ? 'sbloccato' : 'bloccato'));
+  }
+
+  function updateAchCount(){
+    var n = 0;
+    ACH.forEach(function(a){ if(achState[a.id]) n++; });
+    achCountEl.textContent = n;
+  }
+
+  ACH.forEach(function(def){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ach-badge';
+    btn.setAttribute('data-ach', def.id);
+    var ico = document.createElement('span');
+    ico.className = 'ach-ico';
+    btn.appendChild(ico);
+    paintBadge(btn, def);
+    var show = function(){ achDetail.innerHTML = achDetailText(def); };
+    btn.addEventListener('mouseenter', show);
+    btn.addEventListener('focus', show);
+    btn.addEventListener('click', show);
+    achGrid.appendChild(btn);
+  });
+  updateAchCount();
+
+  function unlock(id, silent){
+    var def = achById[id];
+    if(!def || achState[id]) return;
+    achState[id] = Date.now();
+    achSave();
+
+    var btn = achGrid.querySelector('[data-ach="' + id + '"]');
+    if(btn){
+      paintBadge(btn, def);
+      btn.classList.remove('pop');
+      void btn.offsetWidth;
+      btn.classList.add('pop');
+    }
+    updateAchCount();
+    if(silent) return;
+
+    showToast('🏆 Obiettivo sbloccato: ' + def.title + (def.xp ? ' (+' + def.xp + ' XP)' : ''), 3400);
+    soundFanfare();
+
+    var x = window.innerWidth / 2, y = window.innerHeight * 0.6;
+    if(btn){
+      var r = btn.getBoundingClientRect();
+      if(r.bottom > 0 && r.top < window.innerHeight){ x = r.left + r.width / 2; y = r.top + r.height / 2; }
+    }
+    spawnBurst(x, y, 14, ['🏆', '✨', def.icon]);
+
+    if(def.xp) addXp(def.xp);
+
+    // Meta-obiettivo: tutti gli altri
+    var all = true;
+    ACH.forEach(function(a){ if(a.id !== 'platinum' && !achState[a.id]) all = false; });
+    if(all) unlock('platinum');
+  }
+
+  // Insiemi di cose già fatte (skill cliccate, progetti provati), salvati anch'essi
+  var achSets = {};
+  function trackSet(key, val, total, achId){
+    if(!achSets[key]){
+      try{ achSets[key] = JSON.parse(localStorage.getItem('fra:set:' + key) || '[]') || []; }catch(e){ achSets[key] = []; }
+    }
+    var arr = achSets[key];
+    if(arr.indexOf(val) === -1){
+      arr.push(val);
+      try{ localStorage.setItem('fra:set:' + key, JSON.stringify(arr)); }catch(e){}
+    }
+    if(arr.length >= total) unlock(achId);
+  }
+
+  skillItems.forEach(function(item, idx){
+    item.addEventListener('click', function(){ unlock('skill1'); trackSet('skills', idx, skillItems.length, 'skillsAll'); });
+  });
+  testProjBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){ trackSet('projs', btn.getAttribute('data-proj'), testProjBtns.length, 'projects'); });
+  });
+  var whoClicks = 0;
+  btnOtherWho.addEventListener('click', function(){ if(++whoClicks >= 5) unlock('who'); });
+  btnCopyExcuse.addEventListener('click', function(){ unlock('oracle'); });
+  mailLink.addEventListener('click', function(){ unlock('mail'); });
+  btnAcceptTarallo.addEventListener('click', function(){ unlock('tarallo'); });
+  btnRejectTarallo.addEventListener('click', function(){ unlock('tarallo'); });
+  document.getElementById('theme').addEventListener('click', function(){ unlock('theme'); });
+  document.getElementById('badgeExotic').addEventListener('click', function(){ unlock('esotico'); });
+  document.getElementById('logoBtn').addEventListener('click', function(){ unlock('logo'); });
+  h1.addEventListener('click', function(){ unlock('francy'); });
+  [].slice.call(document.querySelectorAll('.btn-youtube, .btn-twitch')).forEach(function(a){
+    a.addEventListener('click', function(){ unlock('channels'); });
+  });
+  var repoGridEl = document.getElementById('repoGrid');
+  if(repoGridEl){
+    repoGridEl.addEventListener('click', function(e){
+      if(e.target.closest && e.target.closest('.repo-card')) unlock('repo');
+    });
+  }
+  var footEl = document.querySelector('footer');
+  if(footEl && 'IntersectionObserver' in window){
+    var footIo = new IntersectionObserver(function(en){
+      if(en[0].isIntersecting){ unlock('bottom'); footIo.disconnect(); }
+    }, {threshold: .6});
+    footIo.observe(footEl);
+  }
+
+  achReady = true;
+  // La pagina 404 lascia un segno nel browser: qui lo riscuoti
+  try{ if(localStorage.getItem('fra:found404')) setTimeout(function(){ unlock('lost'); }, 700); }catch(e){}
+  if(currentXp >= ranks[ranks.length - 1].threshold) unlock('boss', true);
 
   /* ---- TEMA CHIARO/SCURO ---- */
   document.getElementById('theme').addEventListener('click', function(){
@@ -1391,6 +1625,7 @@ body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background
       ? root.dataset.theme === 'dark'
       : !window.matchMedia('(prefers-color-scheme: light)').matches;
     root.dataset.theme = isDark ? 'light' : 'dark';
+    try{ localStorage.setItem('fra:theme', root.dataset.theme); }catch(e){}
     showToast(isDark ? '☀️ Tema chiaro attivato' : '🌙 Tema scuro attivato');
   });
 
