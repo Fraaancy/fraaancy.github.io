@@ -480,3 +480,20 @@ body.party-mode nav{backdrop-filter:none;-webkit-backdrop-filter:none;background
 @keyframes achPop{0%{transform:scale(.6)}60%{transform:scale(1.28)}100%{transform:scale(1)}}
 .ach-detail{margin-top:.9rem;min-height:2.9em;font-size:.88rem;color:var(--mute);line-height:1.45}
 .ach-detail strong{color:var(--ink)}
+
+/* ---------- CUSTOM SCROLLBAR ---------- */
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+  border-left: 1px solid var(--line);
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--mute) 40%, transparent);
+  border-radius: 6px;
+  border: 3px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mute);
+}

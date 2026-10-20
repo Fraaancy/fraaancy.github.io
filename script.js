@@ -600,7 +600,54 @@
     addXp(gameScore * 10, window.innerWidth / 2, window.innerHeight / 2);
   }
 
+
   /* ==========================================================================
+     SALA GIOCHI: 4. SIMULATORE DI RIUNIONE AZIENDALE
+     ========================================================================== */
+  var meetingQuote = document.getElementById('meetingQuote');
+  var btnNewMeeting = document.getElementById('btnNewMeeting');
+  var btnCopyMeeting = document.getElementById('btnCopyMeeting');
+
+  var meetingPhrases = [
+    '"Dobbiamo schedulare una call per allinearci sul forecast."',
+    '"Focalizziamoci sul core business per generare disruption nel mercato."',
+    '"Facciamo un brainstorming ASAP per trovare una soluzione out of the box."',
+    '"Qual è il commitment su questa task? Mi serve per il follow-up."',
+    '"Dobbiamo fare onboarding sulle sinergie per scalare il business."',
+    '"Mandami un brief così facciamo un check e ci portiamo avanti col delivery."',
+    '"Il KPI è sfidante, serve un cambio di mindset per evitare il bottleneck."'
+  ];
+  var meetingIdx = 0;
+
+  if (btnNewMeeting) {
+      btnNewMeeting.addEventListener('click', function(e){
+        soundPop();
+        meetingIdx = (meetingIdx + 1) % meetingPhrases.length;
+        meetingQuote.style.opacity = '0';
+        setTimeout(function(){
+          meetingQuote.textContent = meetingPhrases[meetingIdx];
+          meetingQuote.style.opacity = '1';
+        }, 150);
+        var b = this.getBoundingClientRect();
+        spawnBurst(b.left + b.width / 2, b.top + b.height / 2, 6, ['👔', '💼', '📈']);
+        addXp(15, e.clientX, e.clientY);
+      });
+  }
+
+  if (btnCopyMeeting) {
+      btnCopyMeeting.addEventListener('click', function(){
+        soundPop();
+        var text = meetingQuote.textContent.replace(/^"|"$/g, '');
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(text);
+          showToast('📋 Frase aziendale copiata! Usala nella prossima call.');
+        } else {
+          showToast('📋 Pronti a fare disruption!');
+        }
+      });
+  }
+
+/* ==========================================================================
      PROGETTI INTERATTIVI (SIMULAZIONI COMODE)
      ========================================================================== */
   var testProjBtns = document.querySelectorAll('.btn-test-proj');
